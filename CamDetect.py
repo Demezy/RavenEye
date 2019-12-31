@@ -4,23 +4,24 @@ import datetime  # для отображения даты
 import imutils  # работа с картинкой
 import time  # для работы со врменем
 import cv2  # само компьютероное зрение
-
-# import numpy as np # на всякий случай
+from os.path import abspath as path
 
 ap = argparse.ArgumentParser()  # обработчик аргументов cmd
 ap.add_argument("-v", "--video", help="path to the video file")
 ap.add_argument("-a", "--min-area", type=int, default=500, help="minimum area size")
-ap.add_argument('-f', '--max-frames', type=int, default=1000, help="after this count program will stop")
+ap.add_argument('-f', '--max-frames', type=int, default=1000,
+                help="after this count program will stop")  # 0 для бесконечного цикла
+ap.add_argument('-A', '--max-area', type=int, default=30000, help="number for calibrate")  # experimental parameter
+ap.add_argument('-p', '--path', default='./frames/', help='dir for frames')  # где хранить файлы
 args = vars(ap.parse_args())  # переменная для нормальной работы с аргументами
 
 if args.get("video", None) is None:  # работаем как с видеофайлом, так и с видеопотоком
     vs = VideoStream(src=0).start()
     time.sleep(2.0)  # даю подумать
-
 else:
     vs = cv2.VideoCapture(args["video"])
 
-firstFrame = None  # дальнейшее сравнение идет с первым кадром
+sourceFrame = None  # дальнейшее сравнение идет с исходным кадром
 count = 0  # номер кадра с "вором"
 
 while True:
@@ -32,10 +33,10 @@ while True:
     frame = imutils.resize(frame, width=500)  # преобразую картинку
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  # для работы нужен моноканал, преобразую
     gray = cv2.GaussianBlur(gray, (21, 21), 0)  # размытие по гаусу
-    if firstFrame is None:
-        firstFrame = gray  # устанавливаю первый кадр, с которым сравниваю
+    if sourceFrame is None:
+        sourceFrame = gray  # устанавливаю первый кадр, с которым сравниваю
         continue
-    frameDelta = cv2.absdiff(firstFrame, gray)  # отличие кадра от исходного
+    frameDelta = cv2.absdiff(sourceFrame, gray)  # отличие кадра от исходного
     thresh = cv2.threshold(frameDelta, 25, 255, cv2.THRESH_BINARY)[1]  # маска для отброса лишнего
     thresh = cv2.dilate(thresh, None, iterations=2)  # немного расширяю границу маски
     cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
@@ -44,15 +45,26 @@ while True:
     for c in cnts:
         if cv2.contourArea(c) < args["min_area"]:  # отсеиваем слишком незначительные изменениями
             continue
+        elif cv2.contourArea(c) > args.get('max_area', 30000):  # калибровка при выключении света
+            sourceFrame = gray
+            continue
         (x, y, w, h) = cv2.boundingRect(c)  # обводим в прямоугольник "нарушителя"
+
+        # print(path(f"./{args.get('path', './frames/')}/frame{count}.jpg"))  # flag, here you can take absolute path for image
+
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
         text = "Occupied"
         count = count + 1
-        cv2.imwrite("./frames/frame%d.jpg" % count, frame)  # сохраняем картинку "нарушителя
-    if count >= args.get('max-frames', 1000):  # ограничиваем колличество картинок,можно сделать умнее,чем отключение
-        print(f"{args.get('max-frames', 1000)} frames")
+        cv2.imwrite(f"{args.get('path', './frames/')}/frame%d.jpg" % count, frame)  # сохраняем картинку "нарушителя
+    if args.get('max_frames', None) is None and count >= 1000:
+        # ограничиваем колличество картинок,можно сделать умнее,чем отключение
+        print('1000 frames, stop service')
         break
-    cv2.putText(frame, "Room Status: {}".format(text), (10, 20),
+    else:
+        if args["max_frames"] <= count and args["max_frames"] != 0:
+            print(f"{args.get['max_frames']} frames, stop service")
+            break
+    cv2.putText(frame, "Status: {}".format(text), (10, 20),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)  # изменяю текст на экране
     cv2.putText(frame, datetime.datetime.now().strftime("%A %d %B %Y %I:%M:%S%p"),
                 (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)  # устнавливаю дату и время
