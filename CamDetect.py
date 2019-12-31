@@ -13,6 +13,7 @@ ap.add_argument('-f', '--max-frames', type=int, default=1000,
                 help="after this count program will stop")  # 0 для бесконечного цикла
 ap.add_argument('-A', '--max-area', type=int, default=30000, help="number for calibrate")  # experimental parameter
 ap.add_argument('-p', '--path', default='./frames/', help='dir for frames')  # где хранить файлы
+ap.add_argument('-g', '--gui', type=int, default=0, help='enable or disable gui') # включаем и выключаем отображение окон
 args = vars(ap.parse_args())  # переменная для нормальной работы с аргументами
 
 if args.get("video", None) is None:  # работаем как с видеофайлом, так и с видеопотоком
@@ -20,7 +21,7 @@ if args.get("video", None) is None:  # работаем как с видеофа
     time.sleep(2.0)  # даю подумать
 else:
     vs = cv2.VideoCapture(args["video"])
-
+print('start service')
 sourceFrame = None  # дальнейшее сравнение идет с исходным кадром
 count = 0  # номер кадра с "вором"
 
@@ -55,25 +56,28 @@ while True:
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
         text = "Occupied"
         count = count + 1
-        cv2.imwrite(f"{args.get('path', './frames/')}/frame%d.jpg" % count, frame)  # сохраняем картинку "нарушителя
+    cv2.putText(frame, "Status: {}".format(text), (10, 20),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)  # изменяю текст на экране
+    cv2.putText(frame, datetime.datetime.now().strftime("%A %d %B %Y %I:%M:%S%p"),
+                (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)  # устнавливаю дату и время
+    cv2.imwrite(f"{args.get('path', './frames/')}/frame-{count}.jpg", frame)  # сохраняем картинку "нарушителя
     if args.get('max_frames', None) is None and count >= 1000:
         # ограничиваем колличество картинок,можно сделать умнее,чем отключение
         print('1000 frames, stop service')
         break
     else:
         if args["max_frames"] <= count and args["max_frames"] != 0:
-            print(f"{args.get['max_frames']} frames, stop service")
+            print(f"{args.get('max_frames')} frames, stop service")
             break
-    cv2.putText(frame, "Status: {}".format(text), (10, 20),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)  # изменяю текст на экране
-    cv2.putText(frame, datetime.datetime.now().strftime("%A %d %B %Y %I:%M:%S%p"),
-                (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)  # устнавливаю дату и время
-    cv2.imshow("Security Feed", frame)  # вывод картинок
-    cv2.imshow("Thresh", thresh)
-    cv2.imshow("Frame Delta", frameDelta)
+    if not (args.get('gui') is None):
+        if args['gui']:
+            cv2.imshow("Security Feed", frame)  # вывод картинок
+            cv2.imshow("Thresh", thresh)
+            cv2.imshow("Frame Delta", frameDelta)
     key = cv2.waitKey(27)  # закрывем программу, при нажатии на esc
     if key == 27:
         break
 
 vs.stop() if args.get("video", None) is None else vs.release()
 cv2.destroyAllWindows()
+00
