@@ -5,6 +5,7 @@ import imutils  # работа с картинкой
 import time  # для работы со врменем
 import cv2  # само компьютероное зрение
 from os.path import abspath as path
+
 from mainKlOn import send_image
 
 
@@ -15,7 +16,10 @@ ap.add_argument('-f', '--max-frames', type=int, default=1000,
                 help="after this count program will stop")  # 0 для бесконечного цикла
 ap.add_argument('-A', '--max-area', type=int, default=30000, help="number for calibrate")  # experimental parameter
 ap.add_argument('-p', '--path', default='./frames/', help='dir for frames')  # где хранить файлы
-ap.add_argument('-g', '--gui', type=int, default=0, help='enable or disable gui') # включаем и выключаем отображение окон
+ap.add_argument('-g', '--gui', type=int, default=0,
+                help='enable or disable gui')  # включаем и выключаем отображение окон
+ap.add_argument('-s', '--send-frame', type=int, default=10,
+                help='Send frame, whose number is divisible for this number')  # зыщита от спама ботом
 args = vars(ap.parse_args())  # переменная для нормальной работы с аргументами
 
 if args.get("video", None) is None:  # работаем как с видеофайлом, так и с видеопотоком
@@ -61,8 +65,9 @@ while True:
                 (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)  # устнавливаю дату и время
     cv2.imwrite(f"{args.get('path', './frames/')}/frame-{count}.jpg", frame)  # сохраняем картинку "нарушителя
 
-    send_image(path(f"./{args.get('path', './frames/')}/frame{count}.jpg"))
-
+    if text == 'Occupied' and count % args.get('send_frame', 10) == 0: # избавляемся от спама в боте
+        # print(path(f"./{args.get('path', './frames/')}/frame{count}.jpg"))
+        send_image(path(f"./{args.get('path', './frames/')}/frame{count}.jpg"))
 
     if args.get('max_frames', None) is None and count >= 1000:
         # ограничиваем колличество картинок,можно сделать умнее,чем отключение
