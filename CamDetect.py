@@ -52,9 +52,6 @@ while True:
             sourceFrame = gray
             continue
         (x, y, w, h) = cv2.boundingRect(c)  # обводим в прямоугольник "нарушителя"
-
-        send_image(path(f"./{args.get('path', './frames/')}/frame{count}.jpg")))
-
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
         text = "Occupied"
         count = count + 1
@@ -63,6 +60,10 @@ while True:
     cv2.putText(frame, datetime.datetime.now().strftime("%A %d %B %Y %I:%M:%S%p"),
                 (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)  # устнавливаю дату и время
     cv2.imwrite(f"{args.get('path', './frames/')}/frame-{count}.jpg", frame)  # сохраняем картинку "нарушителя
+
+    send_image(path(f"./{args.get('path', './frames/')}/frame{count}.jpg"))
+
+
     if args.get('max_frames', None) is None and count >= 1000:
         # ограничиваем колличество картинок,можно сделать умнее,чем отключение
         print('1000 frames, stop service')
@@ -82,4 +83,3 @@ while True:
 
 vs.stop() if args.get("video", None) is None else vs.release()
 cv2.destroyAllWindows()
-00
