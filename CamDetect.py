@@ -5,6 +5,8 @@ import imutils  # работа с картинкой
 import time  # для работы со врменем
 import cv2  # само компьютероное зрение
 from os.path import abspath as path
+from mainKlOn import send_image
+
 
 ap = argparse.ArgumentParser()  # обработчик аргументов cmd
 ap.add_argument("-v", "--video", help="path to the video file")
@@ -33,7 +35,7 @@ while True:
         break  # если пользователь пень и не дал ни камеры, ни видео
     frame = imutils.resize(frame, width=500)  # преобразую картинку
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  # для работы нужен моноканал, преобразую
-    gray = cv2.GaussianBlur(gray, (21, 21), 0)  # размытие по гаусу
+    gray = cv2.GaussianBlur(gray, (21, 21), 0)  # размытие по гаусу, убераем шумы
     if sourceFrame is None:
         sourceFrame = gray  # устанавливаю первый кадр, с которым сравниваю
         continue
@@ -51,7 +53,7 @@ while True:
             continue
         (x, y, w, h) = cv2.boundingRect(c)  # обводим в прямоугольник "нарушителя"
 
-        # print(path(f"./{args.get('path', './frames/')}/frame{count}.jpg"))  # flag, here you can take absolute path for image
+        send_image(path(f"./{args.get('path', './frames/')}/frame{count}.jpg")))
 
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
         text = "Occupied"
