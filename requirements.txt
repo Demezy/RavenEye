@@ -1,0 +1,6 @@
+certifi==2019.11.28
+imutils==0.5.3
+numpy==1.18.0
+opencv-python==4.1.2.30
+pyzmq==18.1.1
+zmq==0.0.0
