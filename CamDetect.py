@@ -5,8 +5,18 @@ import imutils  # работа с картинкой
 import time  # для работы со врменем
 import cv2  # само компьютероное зрение
 from os.path import abspath as path
+import os
+import base64
+import zmq
 
-from mainKlOn import send_image
+
+
+context = zmq.Context()
+footage_socket = context.socket(zmq.PUB)
+footage_socket.connect('tcp://127.0.0.1:5555')
+
+
+from main import send_image
 
 
 ap = argparse.ArgumentParser()  # обработчик аргументов cmd
@@ -66,8 +76,8 @@ while True:
     cv2.imwrite(f"{args.get('path', './frames/')}/frame-{count}.jpg", frame)  # сохраняем картинку "нарушителя
 
     if text == 'Occupied' and count % args.get('send_frame', 10) == 0: # избавляемся от спама в боте
-        # print(path(f"./{args.get('path', './frames/')}/frame{count}.jpg"))
-        send_image(path(f"./{args.get('path', './frames/')}/frame{count}.jpg"))
+        # print(path(f"./{args.get('path', './frames/')}/frame-{count}.jpg"))
+        send_image(path(f"./{args.get('path', './frames/')}/frame-{count}.jpg"))
 
     if args.get('max_frames', None) is None and count >= 1000:
         # ограничиваем колличество картинок,можно сделать умнее,чем отключение
@@ -82,6 +92,12 @@ while True:
             cv2.imshow("Security Feed", frame)  # вывод картинок
             cv2.imshow("Thresh", thresh)
             cv2.imshow("Frame Delta", frameDelta)
+    
+    # отправка данных в поток
+    encoded, buffer = cv2.imencode('.jpg', frame)
+    jpg_as_text = base64.b64encode(buffer)
+    footage_socket.send(jpg_as_text)
+
     key = cv2.waitKey(27)  # закрывем программу, при нажатии на esc
     if key == 27:
         break
