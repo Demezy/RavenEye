@@ -10,6 +10,9 @@ class Detector:
         self.vs = VideoStream(src=video_src).start()
         time.sleep(2.0)  # даю подумать
         print('start service')
+        frame = self.vs.read()
+        frame = imutils.resize(frame, width=500)
+        self.source_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         self.refresh()
         self.count = 0  # номер кадра с "вором"
         self.text = "Unoccupied"
@@ -25,8 +28,8 @@ class Detector:
 
     def get_frame(self):
         self.refresh()
-        self.detect()
         self.source_frame = self.gray  # дальнейшее сравнение идет с исходным кадром
+        self.detect()
         return self.output()
 
     def self_check(self):
