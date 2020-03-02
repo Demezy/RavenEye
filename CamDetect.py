@@ -15,7 +15,7 @@ class Detector:
         self.source_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         self.refresh()
         self.count = 0  # номер кадра с "вором"
-        self.text = "Unoccupied"
+        self.is_occupied = False
         self.min_area = 500
         self.gui = gui
         self.path = './frames/'
@@ -45,6 +45,7 @@ class Detector:
         self.thresh = cv2.dilate(self.thresh, None, iterations=2)  # немного расширяю границу маски
 
     def detect(self):
+        self.is_occupied = False
         cnts = cv2.findContours(self.thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)  # контуры
         cnts = imutils.grab_contours(cnts)
         for c in cnts:
@@ -52,11 +53,12 @@ class Detector:
                 continue
             (x, y, w, h) = cv2.boundingRect(c)  # обводим в прямоугольник "нарушителя"
             cv2.rectangle(self.frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-            self.text = "Occupied"
+            self.is_occupied = True
         self.count += 1
 
     def output(self):
-        cv2.putText(self.frame, f"Status: {self.text}", (10, 20),
+        text = 'Occupeied' if self.is_occupied else 'Unoccupied'
+        cv2.putText(self.frame, f"Status: {text}", (10, 20),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)  # изменяю текст на экране
         cv2.putText(self.frame, datetime.datetime.now().strftime("%A %d %B %Y %I:%M:%S%p"),
                     (10, self.frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255),
@@ -66,7 +68,7 @@ class Detector:
             cv2.imshow("Security Feed", self.frame)  # вывод картинок
             cv2.imshow("Thresh", self.thresh)
             cv2.imshow("Frame Delta", self.frame_delta)
-        return f"{self.path}/frame-{self.count}.jpg", self.frame
+        return f"{self.path}/frame-{self.count}.jpg"
 
     def stop(self):
         self.vs.stop()
