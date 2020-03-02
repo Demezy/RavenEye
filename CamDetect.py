@@ -6,12 +6,13 @@ import cv2  # само компьютероное зрение
 
 
 class Detector:
-    def __init__(self, video_src=0, gui=True):
+    def __init__(self, video_src=0, gui=True, width=700):
         self.vs = VideoStream(src=video_src).start()
         time.sleep(2.0)  # даю подумать
         print('start service')
         frame = self.vs.read()
-        frame = imutils.resize(frame, width=500)
+        self.width = width
+        frame = imutils.resize(frame, width=self.width)
         self.source_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         self.refresh()
         self.count = 0  # номер кадра с "вором"
@@ -37,7 +38,7 @@ class Detector:
 
     def refresh(self):
         self.frame = self.vs.read()  # получаю кадр из потока
-        self.frame = imutils.resize(self.frame, width=500)  # преобразую картинку
+        self.frame = imutils.resize(self.frame, width=self.width)  # преобразую картинку
         self.gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)  # для работы нужен моноканал, преобразую
         self.gray = cv2.GaussianBlur(self.gray, (21, 21), 0)  # размытие по гаусу, убераем шумы
         self.frame_delta = cv2.absdiff(self.source_frame, self.gray)  # отличие кадра от исходного
@@ -59,16 +60,16 @@ class Detector:
     def output(self):
         text = 'Occupeied' if self.is_occupied else 'Unoccupied'
         cv2.putText(self.frame, f"Status: {text}", (10, 20),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)  # изменяю текст на экране
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 2)  # изменяю текст на экране
         cv2.putText(self.frame, datetime.datetime.now().strftime("%A %d %B %Y %I:%M:%S%p"),
-                    (10, self.frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255),
+                    (10, self.frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255),
                     1)  # устнавливаю дату и время
         cv2.imwrite(f"{self.path}/frame-{self.count}.jpg", self.frame)  # сохраняем картинку "нарушителя"
         if self.gui:
-            cv2.imshow("Security Feed", self.frame)  # вывод картинок
+            cv2.imshow("CAMERA", self.frame)  # вывод картинок
             cv2.imshow("Thresh", self.thresh)
             cv2.imshow("Frame Delta", self.frame_delta)
-        return f"{self.path}/frame-{self.count}.jpg"
+        return f"{self.path}/frame-{self.count}.jpg", self.is_occupied
 
     def stop(self):
         self.vs.stop()
