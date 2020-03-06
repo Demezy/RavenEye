@@ -6,7 +6,7 @@ import cv2  # само компьютероное зрение
 
 
 class Detector:
-    def __init__(self, video_src=0, gui=False, width=640, height=480, fps=20, path='./frames/'):
+    def __init__(self, video_src=0, gui=False, width=640, height=480, fps=20, path='./data/frames/'):
         self.vs = VideoStream(src=video_src).start()
         time.sleep(1.0)  # даю подумать
         print('start service')

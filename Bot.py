@@ -1,6 +1,6 @@
 import datetime, mysql.connector
 
-from config import TG_API_URL, TG_TOKEN
+from data/CONFIG import TG_API_URL, TG_TOKEN
 from telegram import Bot, Update, ParseMode, KeyboardButton, InlineKeyboardButton, \
     InlineKeyboardMarkup, ReplyKeyboardRemove, ReplyKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, \
