@@ -6,39 +6,55 @@ import cv2  # само компьютероное зрение
 
 
 class Detector:
-    def __init__(self, video_src=0, gui=True, width=700):
+    def __init__(self, video_src=0, gui=False, width=640, height=480, fps=20, path='./frames/'):
         self.vs = VideoStream(src=video_src).start()
-        time.sleep(2.0)  # даю подумать
+        time.sleep(1.0)  # даю подумать
         print('start service')
         frame = self.vs.read()
         self.width = width
-        frame = imutils.resize(frame, width=self.width)
+        self.height = height
+        frame = imutils.resize(frame, width=self.width, height=self.height)
         self.source_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         self.refresh()
         self.count = 0  # номер кадра с "вором"
         self.is_occupied = False
         self.min_area = 500
         self.gui = gui
-        self.path = './frames/'
+        self.path = path
 
-    def change_parameters(self, min_area=False, path=False):
+        # для трансляции
+        self.fps = fps
+        self.height = height
+        self.fourcc = cv2.VideoWriter_fourcc(*'H264')
+        self.out = cv2.VideoWriter('output.avi', self.fourcc, self.fps, (self.width, self.height), True)
+
+    def change_parameters(self, min_area=False, path=False, width=False, height=False, fps=False):
         if min_area:
             self.min_area = min_area
         if path:
             self.path = path
+        if width:
+            self.width = width
+        if height:
+            self.height = height
+        if fps:
+            self.fps = fps
+
+        self.out = cv2.VideoWriter('output.avi', self.fourcc, self.fps, (self.width, self.height), True)
 
     def get_frame(self):
         self.refresh()
-        self.source_frame = self.gray  # дальнейшее сравнение идет с исходным кадром
+        self.source_frame = self.gray.copy()  # дальнейшее сравнение идет с исходным кадром
         self.detect()
-        return self.output()
-
-    def self_check(self):
-        pass
+        self.frames = open("stream.jpg", 'wb+')
+        img = self.vs.read()
+        cv2.imwrite("stream.jpg", img)  # Save image...
+        # , self.output()
+        return self.frames.read()
 
     def refresh(self):
         self.frame = self.vs.read()  # получаю кадр из потока
-        self.frame = imutils.resize(self.frame, width=self.width)  # преобразую картинку
+        self.frame = imutils.resize(self.frame, width=self.width, height=self.height)  # преобразую картинку
         self.gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)  # для работы нужен моноканал, преобразую
         self.gray = cv2.GaussianBlur(self.gray, (21, 21), 0)  # размытие по гаусу, убераем шумы
         self.frame_delta = cv2.absdiff(self.source_frame, self.gray)  # отличие кадра от исходного
@@ -71,10 +87,21 @@ class Detector:
             cv2.imshow("Frame Delta", self.frame_delta)
         return f"{self.path}/frame-{self.count}.jpg", self.is_occupied
 
-    def stop(self):
+    def __del__(self):
+        self.out.release()
         self.vs.stop()
         cv2.destroyAllWindows()
         print('stop service')
+
+    def stop(self):
+        # self.vs.stop()
+        # cv2.destroyAllWindows()
+        # print('stop service')
+        self.__del__()
+
+    def saveVideo(self):
+        # Write the frame...
+        self.out.write(self.frame)
 
 
 if __name__ == '__main__':
