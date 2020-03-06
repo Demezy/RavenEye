@@ -46,10 +46,10 @@ class Detector:
         self.refresh()
         self.source_frame = self.gray.copy()  # дальнейшее сравнение идет с исходным кадром
         self.detect()
+        self.output()
         self.frames = open("stream.jpg", 'wb+')
-        img = self.vs.read()
-        cv2.imwrite("stream.jpg", img)  # Save image...
-        # , self.output()
+        cv2.imwrite("stream.jpg", self.frame)  # Save image...
+        # todo отправка сообщения в телеграмм
         return self.frames.read()
 
     def refresh(self):
@@ -85,7 +85,7 @@ class Detector:
             cv2.imshow("CAMERA", self.frame)  # вывод картинок
             cv2.imshow("Thresh", self.thresh)
             cv2.imshow("Frame Delta", self.frame_delta)
-        return f"{self.path}/frame-{self.count}.jpg", self.is_occupied
+        return f"{self.path}/frame-{self.count}.jpg"
 
     def __del__(self):
         self.out.release()
@@ -94,13 +94,10 @@ class Detector:
         print('stop service')
 
     def stop(self):
-        # self.vs.stop()
-        # cv2.destroyAllWindows()
-        # print('stop service')
         self.__del__()
 
     def saveVideo(self):
-        # Write the frame...
+        # запись видео
         self.out.write(self.frame)
 
 
