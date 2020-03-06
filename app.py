@@ -10,10 +10,11 @@ from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import InputRequired, Email, Length
 
 from CamDetect import Detector
+from os.path import abspath
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'Thisissupposedtobesecret!'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/lehin/Desktop/finish/userbase.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{abspath("./data/userbase.db")}'
 bootstrap = Bootstrap(app)
 db = SQLAlchemy(app)
 login_manager = LoginManager()
