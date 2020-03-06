@@ -1,0 +1,51 @@
+{% import "bootstrap/wtf.html" as wtf %}
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <title>Informatics Project</title>
+    <link rel="stylesheet" href="{{url_for('.static', filename='style.css')}}">
+    <link rel="icon" href="img/icon.png" sizes="16x16" type="image/png">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+  </head>
+  <body style="background-color:gray;">
+    <header class="">
+      <nav class="navbar navbar-expand-md bg-dark sticky-top">
+        <div class="container-fluid">
+          <a href="{{ url_for('index') }}" class="navbar-brad"><img id="im" src="{{ url_for('static', filename='image/icon.png') }}"></a>
+        </div>
+      </nav>
+    </header>
+    <main style="padding: 10%;">
+      <div class="bg-dark rounded-lg" style="width: 95%; margin: 50px auto; max-width: 500px;">
+        <div class="p-2" style="width: 95%; margin: 50px auto;">
+          <h4 class="text-center mb-4 text-white"> Форма входа </h4>
+          <form action="/login" method="POST" class="text-white">
+            {{ form.hidden_tag() }}
+            {{ wtf.form_field(form.username) }}
+            {{ wtf.form_field(form.password) }}
+            {{ error_message }}
+            <p><button type="submit" class="btn btn-success mt-2">Войти</button></p>
+          </form>
+        </div>
+      </div>
+    </main>
+    <footer class="container-fluid bg-dark p-3 text-white">
+      <div class="container">
+        <div class="row padding text-center">
+          <div class="col-12">
+            <p>&copy; Project by Lespir and Demezy</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://use.fontawesome.com/releases/v5.0.8/js/all.js" type="text/javascript"></script>
+  </body>
+</html>
