@@ -1,0 +1,26 @@
+body {
+  font-family: 'Raleway', sans-serif;
+  width: 100%;
+  background: linear-gradient(to bottom, DarkGray, Gray, DimGray, Black);
+}
+
+.navbar-brad img {
+  width: 70px;
+}
+
+.navbar-nav li {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.nav-link {
+  font-size: 1.1em !important;
+}
+
+.nav-link:hover {
+  background: #FFF;
+  color: #000 !important;
+  border-radius: 5px;
+}
+
+
