@@ -42,11 +42,11 @@ class Detector:
 
         self.out = cv2.VideoWriter('output.avi', self.fourcc, self.fps, (self.width, self.height), True)
 
-    def get_frame(self):
+    def get_frame(self, save_file=False):
         self.refresh()
         self.source_frame = self.gray.copy()  # дальнейшее сравнение идет с исходным кадром
         self.detect()
-        self.output()
+        self.output(save_file=save_file)
         self.frames = open("stream.jpg", 'wb+')
         cv2.imwrite("stream.jpg", self.frame)  # Save image...
         # todo отправка сообщения в телеграмм
@@ -73,14 +73,15 @@ class Detector:
             self.is_occupied = True
         self.count += 1
 
-    def output(self):
+    def output(self, save_file=True):
         text = 'Occupeied' if self.is_occupied else 'Unoccupied'
         cv2.putText(self.frame, f"Status: {text}", (10, 20),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 2)  # изменяю текст на экране
         cv2.putText(self.frame, datetime.datetime.now().strftime("%A %d %B %Y %I:%M:%S%p"),
                     (10, self.frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255),
                     1)  # устнавливаю дату и время
-        cv2.imwrite(f"{self.path}/frame-{self.count}.jpg", self.frame)  # сохраняем картинку "нарушителя"
+        if save_file:
+            cv2.imwrite(f"{self.path}/frame-{self.count}.jpg", self.frame)  # сохраняем картинку "нарушителя"
         if self.gui:
             cv2.imshow("CAMERA", self.frame)  # вывод картинок
             cv2.imshow("Thresh", self.thresh)
