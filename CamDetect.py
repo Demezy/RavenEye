@@ -6,22 +6,22 @@ import cv2  # само компьютероное зрение
 
 
 class Detector:
-    def __init__(self, video_src=0, gui=False, width=640, height=480, fps=20, path='./data/frames/'):
+    def __init__(self, video_src=0, width=640, height=480, fps=20, path='./data/frames/'):
         self.vs = VideoStream(src=video_src).start()
         time.sleep(1.0)  # даю подумать
         print('start service')
-        frame = self.vs.read()
-        self.width = width
-        self.height = height
-        frame = imutils.resize(frame, width=self.width, height=self.height)
-        self.source_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  # дальнейшее сравнение идет с исходным кадром
-        self.refresh()
         self.count = 0  # номер кадра с "вором"
         self.is_occupied = False
         self.min_area = 500
         self.max_area = 30000
-        self.gui = gui
         self.path = path
+        self.width = width
+        self.height = height
+
+        frame = self.vs.read()
+        frame = imutils.resize(frame, width=width, height=height)
+        self.source_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  # дальнейшее сравнение идет с исходным кадром
+        self.get_frame()
 
         # для трансляции
         self.fps = fps
@@ -74,7 +74,7 @@ class Detector:
             (x, y, w, h) = cv2.boundingRect(c)  # обводим в прямоугольник "нарушителя"
             cv2.rectangle(self.frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
             self.is_occupied = True
-        if save_file:
+        if save_file and self.is_occupied:
             self.count += 1
 
     def output(self, save_file=True):
@@ -85,11 +85,8 @@ class Detector:
                     (10, self.frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255),
                     1)  # устнавливаю дату и время
         if save_file and self.is_occupied:
+
             cv2.imwrite(f"{self.path}/frame-{self.count}.jpg", self.frame)  # сохраняем картинку "нарушителя"
-        if self.gui:
-            cv2.imshow("CAMERA", self.frame)  # вывод картинок
-            cv2.imshow("Thresh", self.thresh)
-            cv2.imshow("Frame Delta", self.frame_delta)
         return f"{self.path}/frame-{self.count}.jpg"
 
     def __del__(self):
@@ -101,15 +98,11 @@ class Detector:
     def stop(self):
         self.__del__()
 
-    # def saveVideo(self):
-        # запись видео
-        # self.out.write(self.frame)
-
 
 if __name__ == '__main__':
     cam = Detector()
-    print(cam.get_frame())
-    time.sleep(4)
+    for i in range(10):
+        cam.get_frame()
     cam.stop()
 # exit(0)
 #

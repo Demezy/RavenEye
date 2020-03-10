@@ -1,8 +1,10 @@
 from CamDetect import Detector
 import Site
 import threading
-import asyncio
+import time
 
+
+# import asyncio
 # import argparse
 
 # ap = argparse.ArgumentParser()  # обработчик аргументов cmd
@@ -15,37 +17,52 @@ import asyncio
 # ap.add_argument('-d', '--delay', type=int, help='delay between message sending in telegram')
 # args = vars(ap.parse_args())  # переменная для нормальной работы с аргументами
 
-# todo асинхронную отправлялку в бота с настройками
 # todo ввести настройки в этом файле
-cam = Detector(gui=False)
+class Buffer:
+    def __init__(self, frame):
+        self.frame = frame
+
+    def get_frame(self):
+        return self.frame
+
+    def set_frame(self, frame):
+        self.frame = frame
 
 
-# Site.Camera = cam
-# Site.app.run()
+cam = Detector()
+buffer = Buffer(cam.get_frame()[0])
+Site.Camera = buffer
 
+threading.Thread(target=Site.app.run).start()
+while True:
+    time.sleep(1)
+    frame, is_occupied, path = cam.get_frame()
+    buffer.set_frame(frame)
+    # print('send', path)
 # while True:
-#     asyncio.sleep(1/20)
-#     print(cam.get_frame()[1:])
-
-# threading.Thread(target=Site.app.run).start()
-
-
-async def frame_worker(sf=False):
-    frame, is_occupied, path = cam.get_frame(save_file=sf)
-    if is_occupied:
-        print('Отправка в бота', path)
-    yield frame
+#     time.sleep(1 / 1)
+#     is_occ, path = cam.get_frame()
+#     if is_occ:
+#         print('send', path)
 
 
-async def main():
-    threading.Thread(target=Site.app.run).start()
-    Site.task = asyncio.create_task(frame_worker())
-    fps = 20
-    while True:
-        await asyncio.sleep(1000 / fps)
-        await asyncio.run(frame_worker(sf=True))
-
-
-if __name__ == '__main__':
-    print('test')
-    asyncio.run(main())
+#
+# async def frame_worker(sf=False):
+#     frame, is_occupied, path = cam.get_frame(save_file=sf)
+#     if is_occupied:
+#         print('Отправка в бота', path)
+#     yield frame
+#
+#
+# async def main():
+#     threading.Thread(target=Site.app.run).start()
+#     Site.task = asyncio.create_task(frame_worker())
+#     fps = 20
+#     while True:
+#         await asyncio.sleep(1000 / fps)
+#         await asyncio.run(frame_worker(sf=True))
+#
+#
+# if __name__ == '__main__':
+#     print('test')
+#     asyncio.run(main())

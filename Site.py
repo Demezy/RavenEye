@@ -162,22 +162,16 @@ def logout():
     return redirect(url_for('login'))
 
 
-# Camera = None
-task = None
+Camera = None
+
+
+# task = None
 
 
 def gen(camera):
     """Video streaming generator function."""
     while True:
-        frame = camera.get_frame(save_file=False)[0]
-        # asyncio.run(task)
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + bytearray(frame) + b'\r\n')
-
-
-def test_gen(task):
-    while True:
-        frame = asyncio.run(task())
+        frame = camera.get_frame()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + bytearray(frame) + b'\r\n')
 
@@ -185,7 +179,7 @@ def test_gen(task):
 @app.route('/video_feed')
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
-    return Response(test_gen(task),
+    return Response(gen(Camera),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
     # return Response(gen(Camera),
     #                 mimetype='multipart/x-mixed-replace; boundary=frame')
