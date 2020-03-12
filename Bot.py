@@ -6,6 +6,8 @@ from telegram import Bot, Update, ParseMode, KeyboardButton, InlineKeyboardButto
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, \
     CallbackQueryHandler, CallbackContext, ConversationHandler
 
+from os.path import abspath
+
 BUTTON1 = "Перейти на сайт 🌐"
 BUTTON2 = "Приостановить ⏸"
 BUTTON3 = "Настройки ⚙️"
@@ -15,7 +17,7 @@ BUTTON6 = "Назад ⬅️"
 
 CALLBACK_BUTTON_SOS = "callback_button_sos"
 
-conn_path = '/home/lehin/Desktop/SecureCam-master/data/userbase.db'
+conn_path = f'/{abspath("./data/userbase.db")}'
 
 
 def start_keyboard():
