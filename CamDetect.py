@@ -6,7 +6,6 @@ import cv2  # само компьютероное зрение
 
 
 class Detector:
-
     def __init__(self, video_src=0, width=640, height=480, fps=20, path='./data/frames/'):
         self.vs = VideoStream(src=video_src).start()
         time.sleep(1.0)  # даю подумать
@@ -64,7 +63,6 @@ class Detector:
         self.thresh = cv2.dilate(self.thresh, None, iterations=2)  # немного расширяю границу маски
 
     def detect(self, save_file=True):
-
         self.is_occupied = False
         cnts = cv2.findContours(self.thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)  # контуры
         cnts = imutils.grab_contours(cnts)

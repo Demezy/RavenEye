@@ -3,8 +3,6 @@ import Site
 import threading
 import time
 
-
-# import asyncio
 # import argparse
 
 # ap = argparse.ArgumentParser()  # обработчик аргументов cmd
@@ -12,12 +10,8 @@ import time
 # ap.add_argument('-f', '--max-frames', type=int, default=1000,
 #                 help="after this count program will stop")  # 0 для бесконечного цикла
 # ap.add_argument('-p', '--path', default='./frames/', help='dir for frames')  # где хранить файлы
-# ap.add_argument('-g', '--gui', type=int, default=0,
-#                 help='enable or disable gui')  # включаем и выключаем отображение окон
 # ap.add_argument('-d', '--delay', type=int, help='delay between message sending in telegram')
 # args = vars(ap.parse_args())  # переменная для нормальной работы с аргументами
-
-# todo ввести настройки в этом файле
 
 
 
@@ -44,12 +38,11 @@ Site.fps = fps
 
 main_tread = threading.Thread(target=main, name='main_thread')
 site_tread = threading.Thread(target=Site.app.run,
-                              kwargs={'host': '127.0.0.1', 'port': '5000', 'ssl_context': ('cert.pem', 'key.pem')},
+                              kwargs={'host': '127.0.0.1', 'port': '5000', 'ssl_context': ('data/cert.pem', 'data/key.pem')},
                               name="Site")
 
 main_tread.start()
 site_tread.start()
-
 
 main_tread.join()
 site_tread.join()
