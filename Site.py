@@ -1,4 +1,4 @@
-import random, threading
+import random
 from flask import Flask, Response, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -7,7 +7,7 @@ from flask_wtf import FlaskForm
 from werkzeug.security import generate_password_hash, check_password_hash
 from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import InputRequired, Email, Length
-from OpenSSL import SSL
+from time import sleep
 
 from os.path import abspath
 
@@ -20,6 +20,8 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+Camera = None
+fps = None
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -161,13 +163,13 @@ def logout():
     return redirect(url_for('login'))
 
 
-Camera = None
 
 
 def gen(camera):
     """Video streaming generator function."""
     while True:
-        frame = camera.get_frame()
+        sleep(1 / fps)
+        frame = camera.get_frame()[0]
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + bytearray(frame) + b'\r\n')
 
@@ -178,7 +180,3 @@ def video_feed():
     return Response(gen(Camera),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
-
-if __name__ == "__main__":
-    # app.run(debug=True)
-    app.run(host='127.0.0.1', debug=True, ssl_context=('cert.pem', 'key.pem'))

@@ -18,51 +18,38 @@ import time
 # args = vars(ap.parse_args())  # переменная для нормальной работы с аргументами
 
 # todo ввести настройки в этом файле
-class Buffer:
-    def __init__(self, frame):
-        self.frame = frame
-
-    def get_frame(self):
-        return self.frame
-
-    def set_frame(self, frame):
-        self.frame = frame
 
 
-cam = Detector()
-buffer = Buffer(cam.get_frame()[0])
-Site.Camera = buffer
 
-threading.Thread(target=Site.app.run).start()
-while True:
-    time.sleep(1)
-    frame, is_occupied, path = cam.get_frame()
-    buffer.set_frame(frame)
-    # print('send', path)
-# while True:
-#     time.sleep(1 / 1)
-#     is_occ, path = cam.get_frame()
-#     if is_occ:
-#         print('send', path)
+fps = 20
 
 
-#
-# async def frame_worker(sf=False):
-#     frame, is_occupied, path = cam.get_frame(save_file=sf)
-#     if is_occupied:
-#         print('Отправка в бота', path)
-#     yield frame
-#
-#
-# async def main():
-#     threading.Thread(target=Site.app.run).start()
-#     Site.task = asyncio.create_task(frame_worker())
-#     fps = 20
-#     while True:
-#         await asyncio.sleep(1000 / fps)
-#         await asyncio.run(frame_worker(sf=True))
-#
-#
-# if __name__ == '__main__':
-#     print('test')
-#     asyncio.run(main())
+def main() -> None:
+    print('start main')
+    c = 0
+    while True:
+        c = (c + 1) % 10
+        time.sleep(1 / fps)
+        frame, is_occupied, path = cam.get_frame()
+        if c == 0:
+            cam.change_parameters()
+            print('path', path)
+        if False:
+            break
+
+
+cam = Detector(fps=fps)
+Site.Camera = cam
+Site.fps = fps
+
+main_tread = threading.Thread(target=main, name='main_thread')
+site_tread = threading.Thread(target=Site.app.run,
+                              kwargs={'host': '127.0.0.1', 'port': '5000', 'ssl_context': ('cert.pem', 'key.pem')},
+                              name="Site")
+
+main_tread.start()
+site_tread.start()
+
+
+main_tread.join()
+site_tread.join()
