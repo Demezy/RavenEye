@@ -1,6 +1,5 @@
 from CamDetect import Detector
 import Bot
-
 import Site
 import threading
 import time
@@ -28,18 +27,25 @@ Site.fps = fps
 # Функция для отправки в бота
 def main() -> None:
     print('start main')
-    c = 0
+    refresh = 0
+    last_send = time.time()
     while True:
-        c = (c + 1) % 100
-        time.sleep(1 / fps)
-        is_occupied, path = cam.get_frame(save_file=True)
-        if c == 0:
-            cam.change_parameters()
-        if is_occupied:
-            # Bot.send_image(path)
-            print('path', path)
-        if False:
-            break
+        if Bot.stop_for <= 0:
+            is_occupied, path = cam.get_frame(save_file=True)
+            if is_occupied:
+                if last_send - time.time() >= Bot.delay:
+                    Bot.send_image(path)
+                    last_send = time.time()
+                    # print(path)
+            # Периодическое обновление исходного кадра
+            refresh = (refresh + 1) % 100
+            if refresh == 0:
+                cam.change_parameters()
+        else:
+            now = time.time()
+            Bot.stop_for -= now - Bot.stop_from
+            Bot.stop_from = now
+
 
 # Создаю и запускаю потоки
 main_thread = threading.Thread(target=main, name='main_thread')

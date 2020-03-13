@@ -8,6 +8,10 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, \
 
 from os.path import abspath
 
+delay = 1
+stop_for = 0
+stop_from = 0
+
 BUTTON1 = "Перейти на сайт 🌐"
 BUTTON2 = "Приостановить ⏸"
 BUTTON3 = "Настройки ⚙️"
