@@ -2,6 +2,7 @@ from CamDetect import Detector
 import Site
 import threading
 import time
+import Bot
 
 # import argparse
 
@@ -14,7 +15,6 @@ import time
 # args = vars(ap.parse_args())  # переменная для нормальной работы с аргументами
 
 
-
 fps = 20
 
 
@@ -22,11 +22,13 @@ def main() -> None:
     print('start main')
     c = 0
     while True:
-        c = (c + 1) % 10
+        c = (c + 1) % 100
         time.sleep(1 / fps)
-        frame, is_occupied, path = cam.get_frame()
+        frame, is_occupied, path = cam.get_frame(save_file=True)
         if c == 0:
             cam.change_parameters()
+        if is_occupied:
+            Bot.send_image(path)
             print('path', path)
         if False:
             break
@@ -36,13 +38,17 @@ cam = Detector(fps=fps)
 Site.Camera = cam
 Site.fps = fps
 
-main_tread = threading.Thread(target=main, name='main_thread')
-site_tread = threading.Thread(target=Site.app.run,
-                              kwargs={'host': '127.0.0.1', 'port': '5000', 'ssl_context': ('data/cert.pem', 'data/key.pem')},
-                              name="Site")
+main_thread = threading.Thread(target=main, name='main_thread')
+site_thread = threading.Thread(target=Site.app.run,
+                               kwargs={'host': '127.0.0.1', 'port': '5000',
+                                       'ssl_context': ('data/cert.pem', 'data/key.pem')},
+                               name="Site")
+bot_thread = threading.Thread(target=Bot.main, name='bot_thread')
 
-main_tread.start()
-site_tread.start()
+main_thread.start()
+site_thread.start()
+bot_thread.start()
 
-main_tread.join()
-site_tread.join()
+bot_thread.join()
+main_thread.join()
+site_thread.join()

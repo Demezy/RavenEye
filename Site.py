@@ -5,7 +5,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from werkzeug.security import generate_password_hash, check_password_hash
-from wtforms import StringField, PasswordField, BooleanField
+from wtforms import StringField, PasswordField, BooleanField, IntegerField, validators
 from wtforms.validators import InputRequired, Email, Length
 from time import sleep
 
@@ -20,8 +20,10 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+COUNT_USER_TYPE = 3
 Camera = None
 fps = None
+
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -30,6 +32,7 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(80))
     telegram_key = db.Column(db.String(80))
     chat_id_telegram = db.Column(db.String(80))
+    user_type = db.Column(db.Integer, nullable=False)
 
 
 @login_manager.user_loader
@@ -46,6 +49,8 @@ class RegisterForm(FlaskForm):
     email = StringField('email')
     username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
     password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
+    user_type = IntegerField('user_type',
+                             validators=[InputRequired(), validators.NumberRange(min=1, max=COUNT_USER_TYPE)])
 
 
 @app.route('/')
@@ -85,10 +90,10 @@ def signup():
 
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
-        if user is None:
+        if user is None
             hashed_password = generate_password_hash(form.password.data, method='sha256')
             new_user = User(username=form.username.data, email=form.email.data, password=hashed_password,
-                            telegram_key=key_gen())
+                            telegram_key=key_gen(), user_type=form.user_type.data)
             db.session.add(new_user)
             db.session.commit()
         else:
@@ -163,8 +168,6 @@ def logout():
     return redirect(url_for('login'))
 
 
-
-
 def gen(camera):
     """Video streaming generator function."""
     while True:
@@ -179,4 +182,3 @@ def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
     return Response(gen(Camera),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
-
