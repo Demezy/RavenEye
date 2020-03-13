@@ -1,5 +1,5 @@
 from CamDetect import Detector
-# import Bot
+import Bot
 
 import Site
 import threading
@@ -24,7 +24,8 @@ cam.change_parameters(min_area=args['min_area'], max_area=args['max_area'])
 Site.Camera = cam
 Site.fps = fps
 
-# Фуекция для отправки в бота
+
+# Функция для отправки в бота
 def main() -> None:
     print('start main')
     c = 0
@@ -34,21 +35,26 @@ def main() -> None:
         is_occupied, path = cam.get_frame(save_file=True)
         if c == 0:
             cam.change_parameters()
-            # Bot.send_image(path)
         if is_occupied:
-            print(path)
+            # Bot.send_image(path)
+            print('path', path)
         if False:
             break
 
 # Создаю и запускаю потоки
-main_tread = threading.Thread(target=main, name='main_thread')
-site_tread = threading.Thread(target=Site.app.run,
-                              kwargs={'host': '127.0.0.1', 'port': '5000',
-                                      'ssl_context': ('data/cert.pem', 'data/key.pem')},
-                              name="Site")
+main_thread = threading.Thread(target=main, name='main_thread')
+site_thread = threading.Thread(target=Site.app.run,
+                               kwargs={'host': '127.0.0.1', 'port': '5000',
+                                       'ssl_context': ('data/cert.pem', 'data/key.pem')},
+                               name="Site")
+bot_thread = threading.Thread(target=Bot.main, name='bot_thread')
+# Запускаю потоки
 
-main_tread.start()
-site_tread.start()
+main_thread.start()
+site_thread.start()
+bot_thread.start()
 
-main_tread.join()
-site_tread.join()
+# Корректно завершаю потоки
+bot_thread.join()
+main_thread.join()
+site_thread.join()
