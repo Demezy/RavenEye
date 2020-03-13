@@ -1,44 +1,50 @@
 from CamDetect import Detector
+# import Bot
+
 import Site
 import threading
 import time
+import argparse
 
-# import argparse
+ap = argparse.ArgumentParser()  # обработчик аргументов cmd
+ap.add_argument('-v', '--video-src', default=0, help='Number of camera')
+ap.add_argument("--min-area", type=int, default=500, help="Minimum area size")
+ap.add_argument("--max-area", type=int, default=25000, help="Maximum area size")
+ap.add_argument('-p', '--path', default='./data/frames/', help='Directory for saving frames')
+ap.add_argument('-d', '--delay', type=int, default=1, help='Delay between message sending in telegram')
+ap.add_argument('--fps', type=int, default=20, help='Fps on translation')
+ap.add_argument('--height', type=int, default=480, help='Image height')
+ap.add_argument('--width', type=int, default=640, help='Image width')
+args = vars(ap.parse_args())  # переменная для нормальной работы с аргументами
 
-# ap = argparse.ArgumentParser()  # обработчик аргументов cmd
-# ap.add_argument("-a", "--min-area", type=int, default=500, help="minimum area size")
-# ap.add_argument('-f', '--max-frames', type=int, default=1000,
-#                 help="after this count program will stop")  # 0 для бесконечного цикла
-# ap.add_argument('-p', '--path', default='./frames/', help='dir for frames')  # где хранить файлы
-# ap.add_argument('-d', '--delay', type=int, help='delay between message sending in telegram')
-# args = vars(ap.parse_args())  # переменная для нормальной работы с аргументами
+fps = args['fps']
+cam = Detector(video_src=args['video_src'], path=args['path'], fps=fps, height=args['height'],
+               width=args['width'])
+cam.change_parameters(min_area=args['min_area'], max_area=args['max_area'])
+Site.Camera = cam
+Site.fps = fps
 
-
-
-fps = 20
-
-
+# Фуекция для отправки в бота
 def main() -> None:
     print('start main')
     c = 0
     while True:
-        c = (c + 1) % 10
+        c = (c + 1) % 100
         time.sleep(1 / fps)
-        frame, is_occupied, path = cam.get_frame()
+        is_occupied, path = cam.get_frame(save_file=True)
         if c == 0:
             cam.change_parameters()
-            print('path', path)
+            # Bot.send_image(path)
+        if is_occupied:
+            print(path)
         if False:
             break
 
-
-cam = Detector(fps=fps)
-Site.Camera = cam
-Site.fps = fps
-
+# Создаю и запускаю потоки
 main_tread = threading.Thread(target=main, name='main_thread')
 site_tread = threading.Thread(target=Site.app.run,
-                              kwargs={'host': '127.0.0.1', 'port': '5000', 'ssl_context': ('data/cert.pem', 'data/key.pem')},
+                              kwargs={'host': '127.0.0.1', 'port': '5000',
+                                      'ssl_context': ('data/cert.pem', 'data/key.pem')},
                               name="Site")
 
 main_tread.start()
