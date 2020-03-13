@@ -45,13 +45,16 @@ class Detector:
         self.source_frame = self.gray.copy()
         # self.out = cv2.VideoWriter('output.avi', self.fourcc, self.fps, (self.width, self.height), True)
 
-    def get_frame(self, save_file=True):
+    def get_frame(self, save_file=True) -> (bool, str):
         self.refresh()
         self.detect(save_file=save_file)
         path = self.output(save_file=save_file)
+        return self.is_occupied, path
+
+    def get_frame_obj(self):
         self.frames = open("stream.jpg", 'wb+')
-        cv2.imwrite("stream.jpg", self.frame)  # Save image...
-        return self.frames.read(), self.is_occupied, path
+        cv2.imwrite("stream.jpg", self.frame)  # поток для сайта
+        return self.frames.read()
 
     def refresh(self):
         self.frame = self.vs.read()  # получаю кадр из потока

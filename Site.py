@@ -22,7 +22,7 @@ login_manager.login_view = 'login'
 
 COUNT_USER_TYPE = 3
 Camera = None
-fps = None
+fps = 20
 
 
 class User(UserMixin, db.Model):
@@ -170,7 +170,7 @@ def gen(camera):
     """Video streaming generator function."""
     while True:
         sleep(1 / fps)
-        frame = camera.get_frame()[0]
+        frame = camera.get_frame_obj()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + bytearray(frame) + b'\r\n')
 
