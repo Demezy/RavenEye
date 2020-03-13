@@ -40,6 +40,7 @@
       <div class="bg-dark rounded-lg" style="width: 95%; margin: 50px auto; max-width: 500px;">
         <div class="p-2 text-white" style="width: 95%; margin: 50px auto;">
           <h4 class="text-center mb-4 text-white"> Панель редактирования персональных данных пользователя. </h4>
+          {% if current_user.username == 1 or current_user.username == 2%}
           <form action="/changer_information" method="POST">
             <p>Nickname *<input name="nickname" placeholder="Nickname" class="form-control" value='{{ name }}' required></p>
             <p>Email<input name="email" placeholder="Email" class="form-control" value="{{ email }}"></p>
@@ -51,10 +52,11 @@
               <div id="content_for_copy" class="form-control col-sm-10" >{{ telegram_key }}</div>
               <button type="button" class="btn btn-primary ml-auto" onclick="copy_text('#content_for_copy')" title="Скопировать телеграм-ключ">&#x2398</button>
             </div>
-            <div class="text-danger mt-2">{{ error_message }}</div>
-            <div class="text-success">{{ cool_mess }}</div>
             <button type="submit" class="btn btn-success mt-2">Сохранить</button>
           </form>
+          {% else %}
+            <div>!!!!!!!!!!!!!!!!!!!!!!!!!</div>
+          {% endif %}
         </div>
       </div>
     </main>

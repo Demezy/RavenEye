@@ -14,17 +14,31 @@ BUTTON3 = "Настройки ⚙️"
 BUTTON4 = "Задержка ⌛"
 BUTTON5 = "Сброс 🔁"
 BUTTON6 = "Назад ⬅️"
+BUTTON7 = "Мой статус 🔐"
 
 CALLBACK_BUTTON_SOS = "callback_button_sos"
 
 conn_path = f'/{abspath("./data/userbase.db")}'
 
 
+def mini_user_keyboard():
+    keyboard = [
+        [
+            KeyboardButton(BUTTON1),
+            KeyboardButton(BUTTON7),
+        ],
+    ]
+    return ReplyKeyboardMarkup(
+        keyboard=keyboard,
+        resize_keyboard=True,
+    )
+
+
 def start_keyboard():
     keyboard = [
         [
             KeyboardButton(BUTTON1),
-            KeyboardButton(BUTTON2),
+            KeyboardButton(BUTTON7),
         ],
         [
             KeyboardButton(BUTTON3),
@@ -38,6 +52,9 @@ def start_keyboard():
 
 def settings_keyboard():
     keyboard = [
+        [
+            KeyboardButton(BUTTON2),
+        ],
         [
             KeyboardButton(BUTTON4),
             KeyboardButton(BUTTON5),
@@ -53,28 +70,51 @@ def settings_keyboard():
 
 
 def do_start(bot: Bot, update: Update):
-    bot.send_message(
-        chat_id=update.message.chat_id,
-        text="Привет! Напиши мне свой логин и код",
-    )
+    is_exists = check_id(update.message.chat_id)
+    if not is_exists:
+        bot.send_message(
+            chat_id=update.message.chat_id,
+            text="Привет! Напиши мне свой логин и код",
+        )
+    elif is_exists:
+        bot.send_message(
+            chat_id=update.message.chat_id,
+            text="Вы успешно вышли из системы",
+            reply_markup=ReplyKeyboardRemove(),
+        )
+
+        conn = sqlite3.connect(conn_path)
+        cur = conn.cursor()
+        sql = f"UPDATE user SET chat_id_telegram = 'Null' WHERE chat_id_telegram = '{update.message.chat_id}'"
+        cur.execute(sql)
+        conn.commit()
+        conn.close()
 
 
 def check_id(chat_id):
-    try:
-        conn = sqlite3.connect(conn_path)
-        cur = conn.cursor()
-        query = f"SELECT * FROM user WHERE chat_id_telegram='{chat_id}'"
-        person = bool(cur.execute(query).fetchall())
-        conn.close()
-        return person
-    except Exception as e:
-        print(e)
+    conn = sqlite3.connect(conn_path)
+    cur = conn.cursor()
+    query = f"SELECT * FROM user WHERE chat_id_telegram='{chat_id}'"
+    person = bool(cur.execute(query).fetchall())
+    conn.close()
+    return person
+
+
+def check_user_type(chat_id):
+    conn = sqlite3.connect(conn_path)
+    cur = conn.cursor()
+    query = f"SELECT user_type FROM user WHERE chat_id_telegram='{chat_id}'"
+    user_type = cur.execute(query).fetchone()
+    conn.close()
+    return user_type[0]
 
 
 def do_help(bot: Bot, update: Update):
     bot.send_message(
         chat_id=update.message.chat_id,
-        text="Адрес сайта 🌐\n(Вводится ссылка на сайт)\n\n"
+        text="Перейти на сайт 🌐\n(Выводится ссылка на сайт)\n\n"
+             "Мой статус 🔐\n(Пользователь может узнать, какой у него статус (урезанный, обычный или админ))\n\n"
+             "Остальные параметры доступны только для админа:\n"
              "Приостановить ⏸\n(Приостанавливает отправку сообщений на n количество секунд)\n\n"
              "Настройки ⚙\n(Открывает клавиатуру с расширенными настройками)\n\n"
              "Задержка ⌛\n(Указываестя время между отправкой сообщений в fps)\n\n"
@@ -94,11 +134,19 @@ def do_echo(bot: Bot, update: Update):
         conn.close()
         if user_is_exist:
             updater_id(update.message.chat_id, text.split()[0], text.split()[1]),
-            bot.send_message(
-                chat_id=update.message.chat_id,
-                text="Вы успешно авторизовались в системе!",
-                reply_markup=start_keyboard(),
-            ),
+            user_type = check_user_type(update.message.chat_id)
+            if user_type == 1:
+                bot.send_message(
+                    chat_id=update.message.chat_id,
+                    text="Вы успешно авторизовались в системе!",
+                    reply_markup=start_keyboard(),
+                ),
+            elif user_type == 2:
+                bot.send_message(
+                    chat_id=update.message.chat_id,
+                    text="Вы успешно авторизовались в системе!",
+                    reply_markup=mini_user_keyboard(),
+                ),
             is_exists = True
         if not is_exists:
             bot.send_message(
@@ -107,33 +155,49 @@ def do_echo(bot: Bot, update: Update):
             )
     elif is_exists:
         text = update.message.text
+        user_type = check_user_type(update.message.chat_id)
         if text == BUTTON1:
             update.message.reply_text(
                 text="http://127.0.0.1:5000",
             )
-        elif text == BUTTON2:
+        elif text == BUTTON2 and user_type == 1:
             update.message.reply_text(
                 text="Пока что нет!",
             )
-        elif text == BUTTON3:
+        elif text == BUTTON3 and user_type == 1:
             update.message.reply_text(
                 text="С более подробным описание настроек Вы можете ознакомиться с помощью команды /help",
                 reply_markup=settings_keyboard(),
             )
-        elif text == BUTTON4:
+        elif text == BUTTON4 and user_type == 1:
             pass
-        elif text == BUTTON5:
+        elif text == BUTTON5 and user_type == 1:
             pass
-        elif text == BUTTON6:
+        elif text == BUTTON6 and user_type == 1:
             update.message.reply_text(
                 text="Главная клавиатура",
                 reply_markup=start_keyboard(),
             )
-        elif text.lower() == "84265":
+        elif text == BUTTON7:
+            if user_type == 1:
+                status = 'admin'
+            elif user_type == 2:
+                status = 'user'
+            bot.send_message(
+                chat_id=update.message.chat_id,
+                text=f"Ваш статус: {status} \n",
+            )
+        elif user_type == 1:
             bot.send_message(
                 chat_id=update.message.chat_id,
                 text="Клавиатура открыта!",
                 reply_markup=start_keyboard(),
+            )
+        elif user_type == 2:
+            bot.send_message(
+                chat_id=update.message.chat_id,
+                text="Клавиатура открыта!",
+                reply_markup=mini_user_keyboard(),
             )
 
 
@@ -142,10 +206,20 @@ def send_image(path):
         token=TG_TOKEN,
         base_url=TG_API_URL,
     )
-    bot.send_photo(
-        chat_id=510560017,
-        photo=open(path, 'rb'),
-    )
+    conn = sqlite3.connect(conn_path)
+    cur = conn.cursor()
+    query = f"SELECT chat_id_telegram FROM user"
+    all_users_id = cur.execute(query).fetchall()
+    conn.close()
+    for user_id in all_users_id:
+        for id in user_id:
+            try:
+                bot.send_photo(
+                    chat_id=id,
+                    photo=open(path, 'rb'),
+                )
+            except Exception as e:
+                print(e)
 
 
 def updater_id(chat_id, login_data, code_data):

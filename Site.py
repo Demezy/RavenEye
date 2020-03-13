@@ -1,5 +1,5 @@
 import random
-from flask import Flask, Response, render_template, redirect, url_for, request
+from flask import Flask, flash, Response, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
@@ -114,10 +114,9 @@ def panel():
 @app.route('/changer_information', methods=['GET', 'POST'])  # Correct personal user information
 @login_required
 def chang_information():
-    user_data = User.query.filter_by(username=current_user.username).first()
     error_mess = ''
     cool_news = ''
-
+    user_data = User.query.filter_by(username=current_user.username).first()
     if check_password_hash(user_data.password, request.form['curr_pass']):
 
         if request.form['new_pass'] != '':
@@ -156,7 +155,6 @@ def chang_information():
             pass
     else:
         error_mess = "Неверно введён пароль"
-
     return render_template('panel.html', name=current_user.username, email=current_user.email,
                            telegram_key=current_user.telegram_key, error_message=error_mess, cool_mess=cool_news)
 
