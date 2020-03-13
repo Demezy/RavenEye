@@ -90,7 +90,7 @@ def signup():
 
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
-        if user is None
+        if user is None:
             hashed_password = generate_password_hash(form.password.data, method='sha256')
             new_user = User(username=form.username.data, email=form.email.data, password=hashed_password,
                             telegram_key=key_gen(), user_type=form.user_type.data)
