@@ -123,7 +123,7 @@ def chang_information():
             if request.form['confirm_pass'] != '':
                 if request.form['new_pass'] == request.form['confirm_pass']:
                     if check_password_hash(user_data.password, request.form['confirm_pass']) is False:
-                        user_data.password = generate_password_hash(request.form['confirm_pass'], method='sha256')
+                        user_data.password = generate_password_hash(request.form['confirm_pass'], method='sha3-256')
                         db.session.commit()
                         cool_news = 'Данные успешно изменены'
                     else:
