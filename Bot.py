@@ -9,10 +9,6 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, \
 
 from os.path import abspath
 
-delay = 1
-stop_for = 0
-stop_from = 0
-
 BUTTON1 = "Перейти на сайт 🌐"
 BUTTON2 = "Приостановить ⏸"
 BUTTON3 = "Настройки ⚙️"
@@ -221,8 +217,10 @@ def send_image(path):
             try:
                 bot.send_photo(
                     chat_id=id,
-                    photo=open(path, 'rb'),
+                    photo=open(abspath(path), 'rb'),
                 )
+            except TypeError:
+                pass
             except Exception as e:
                 print(e)
 

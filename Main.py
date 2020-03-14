@@ -2,7 +2,6 @@ from CamDetect import Detector
 import Bot
 import Site
 import threading
-import time
 import argparse
 
 ap = argparse.ArgumentParser()  # обработчик аргументов cmd
@@ -26,30 +25,12 @@ Site.fps = fps
 
 # Функция для отправки в бота
 def main() -> None:
-    # refresh = 0
-    # last_send = time.time()
-    # while True:
-    #     if Bot.stop_for <= 0:
-    #         is_occupied, path = cam.get_frame(save_file=True)
-    #         if is_occupied:
-    #             if last_send - time.time() >= Bot.delay:
-    #                 Bot.send_image(path)
-    #                 last_send = time.time()
-    #                 print(path)
-    #         # Периодическое обновление исходного кадра
-    #         refresh = (refresh + 1) % 100
-    #         if refresh == 0:
-    #             cam.change_parameters()
-    #     else:
-    #         now = time.time()
-    #         Bot.stop_for -= now - Bot.stop_from
-    #         Bot.stop_from = now
     refresh = 0
     while True:
         is_occupied, path = cam.get_frame(save_file=True)
         if is_occupied:
             Bot.send_image(path)
-            print(path)
+            print('flag', path)
         # Периодическое обновление исходного кадра
         refresh = (refresh + 1) % 100
         if refresh == 0:
