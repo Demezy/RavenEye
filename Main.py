@@ -3,6 +3,7 @@ import Bot
 import Site
 import threading
 import argparse
+import time
 
 ap = argparse.ArgumentParser()  # обработчик аргументов cmd
 ap.add_argument('-v', '--video-src', type=int, default=0, help='Number of camera')
@@ -27,6 +28,7 @@ Site.fps = fps
 def main() -> None:
     refresh = 0
     while True:
+        time.sleep(1 / fps)
         is_occupied, path = cam.get_frame(save_file=True)
         if is_occupied:
             Bot.send_image(path)
