@@ -160,6 +160,13 @@ def chang_information():
                            user_type=current_user.uset_type)
 
 
+@app.route('/adminpanel', methods=['GET', 'POST'])
+@login_required
+def admin_panel():
+    if current_user.user_type == 1:
+        return render_template('adminpanel.html', user_table=User.query.all())
+
+
 @app.route('/logout')
 @login_required
 def logout():
@@ -181,3 +188,4 @@ def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
     return Response(gen(Camera),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
+

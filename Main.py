@@ -4,6 +4,7 @@ import Bot
 import Site
 import threading
 import argparse
+import time
 
 ap = argparse.ArgumentParser()  # обработчик аргументов cmd
 ap.add_argument('-v', '--video-src', type=int, default=0, help='Number of camera')

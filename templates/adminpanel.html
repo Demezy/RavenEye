@@ -31,49 +31,30 @@
                     <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Выйти</button>
                   </a>
                 </li>
-                {% if user_type == 1 %}
-                <li class="nav-item mb-2">
-                  <a href="{{ url_for('admin_panel') }}">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Админ панель</button>
-                  </a>
-                </li>
-                {% endif %}
               </ul>
           </div>
         </div>
       </nav>
     </header>
-    {% if user_type == 1 or user_type == 2 %}
-    <main class="p-5">
-      <div class="bg-dark rounded-lg" style="width: 95%; margin: 50px auto; max-width: 500px;">
-        <div class="p-2 text-white" style="width: 95%; margin: 50px auto;">
-          <h4 class="text-center mb-4 text-white"> Панель редактирования персональных данных пользователя. </h4>
-
-          <form action="/changer_information" method="POST">
-            <p>Nickname *<input name="nickname" placeholder="Nickname" class="form-control" value='{{ name }}' required></p>
-            <p>Email<input name="email" placeholder="Email" class="form-control" value="{{ email }}"></p>
-            <p>Сurrent password *<input type="password" name="curr_pass" class="form-control" required></p>
-            <p>New password<input type="password" name="new_pass" class="form-control"></p>
-            <p>Confirm password<input type="password" name="confirm_pass" class="form-control"></p>
-            <div class="form-inline">
-              TelegramBot key
-              <div id="content_for_copy" class="form-control col-sm-10" >{{ telegram_key }}</div>
-              <button type="button" class="btn btn-primary ml-auto" onclick="copy_text('#content_for_copy')" title="Скопировать телеграм-ключ">&#x2398</button>
-            </div>
-            <button type="submit" class="btn btn-success mt-2">Сохранить</button>
-          </form>
+    <main style="padding: 11%;">
+      <div class="bg-dark rounded-lg" style="width: 95%; margin: 50px auto">
+        <div class="text-white p-3" style="width: 95%; margin: 50px auto;">
+          <h4 class="text-center mb-5 text-white"> Панель администратора</h4>
+              {% for item in user_table %}
+                <forrm class="form-inline mb-1">
+                  <div class="text-white align-text-bottom mr-2">{{ item.id }}</div>
+                  <input name="nickname" placeholder="Nickname" class="bg-dark text-white form-control mr-1" value='{{ item.username }}'>
+                  <input name="email" placeholder="Email" class="bg-dark form-control text-white mr-1" value='{{ item.email }}'>
+                  <input name="telegram_key" placeholder="Telegram Key" class="bg-dark text-white mr-1 form-control" value='{{ item.telegram_key }}'>
+                  <input name="chat_id_telegram" placeholder="Telegram Chat ID" class="bg-dark text-white mr-1 form-control" value='{{ item.chat_id_telegram }}'>
+                  <input name="user_type" placeholder="User type" class="bg-dark text-white mr-1 form-control" value='{{ item.user_type }}'>
+                  <button class="btn btn-success mr-1" title="Сохранить изменения">&#128190;</button>
+                  <button class="btn btn-danger" title="Удалить пользователя">&#128465;</button>
+                </forrm>
+              {% endfor %}
         </div>
       </div>
     </main>
-    {% else %}
-    <main style="padding: 15%;">
-      <div class="bg-dark rounded-lg" style="width: 95%; margin: 50px auto; max-width: 500px;">
-        <div class="p-2 text-white" style="width: 95%; margin: 50px auto;">
-          <h4 class="text-center mb-4 text-danger">Надостаточно прав для посещения данной страницы</h4>
-        </div>
-      </div>
-    </main>
-    {% endif %}
     <footer class="container-fluid bg-dark p-3 text-white">
       <div class="container">
         <div class="row padding text-center">

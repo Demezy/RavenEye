@@ -52,9 +52,12 @@ class Detector:
         return self.is_occupied, path
 
     def get_frame_obj(self):
-        self.frames = open("stream.jpg", 'wb+')
+        self.refresh()
+        self.detect(save_file=False)
+        self.output(save_file=False)
+        frames = open("stream.jpg", 'wb+')
         cv2.imwrite("stream.jpg", self.frame)  # поток для сайта
-        return self.frames.read()
+        return frames.read()
 
     def refresh(self):
         self.frame = self.vs.read()  # получаю кадр из потока
