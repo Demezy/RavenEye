@@ -108,7 +108,7 @@ def signup():
 @login_required
 def panel():
     return render_template('panel.html', name=current_user.username, email=current_user.email,
-                           telegram_key=current_user.telegram_key)
+                           telegram_key=current_user.telegram_key, user_type=current_user.user_type)
 
 
 @app.route('/changer_information', methods=['GET', 'POST'])  # Correct personal user information
@@ -156,7 +156,8 @@ def chang_information():
     else:
         error_mess = "Неверно введён пароль"
     return render_template('panel.html', name=current_user.username, email=current_user.email,
-                           telegram_key=current_user.telegram_key, error_message=error_mess, cool_mess=cool_news)
+                           telegram_key=current_user.telegram_key, error_message=error_mess, cool_mess=cool_news,
+                           user_type=current_user.uset_type)
 
 
 @app.route('/logout')

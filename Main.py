@@ -1,4 +1,5 @@
 from CamDetect import Detector
+from time import time
 import Bot
 import Site
 import threading
@@ -27,6 +28,7 @@ Site.fps = fps
 def main() -> None:
     refresh = 0
     while True:
+        time.sleep(1 / fps)
         is_occupied, path = cam.get_frame(save_file=True)
         if is_occupied:
             Bot.send_image(path)
