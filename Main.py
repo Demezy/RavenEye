@@ -6,7 +6,7 @@ import time
 import argparse
 
 ap = argparse.ArgumentParser()  # обработчик аргументов cmd
-ap.add_argument('-v', '--video-src', default=0, help='Number of camera')
+ap.add_argument('-v', '--video-src', type=int, default=0, help='Number of camera')
 ap.add_argument("--min-area", type=int, default=500, help="Minimum area size")
 ap.add_argument("--max-area", type=int, default=25000, help="Maximum area size")
 ap.add_argument('-p', '--path', default='./data/frames/', help='Directory for saving frames')
@@ -26,25 +26,34 @@ Site.fps = fps
 
 # Функция для отправки в бота
 def main() -> None:
-    print('start main')
+    # refresh = 0
+    # last_send = time.time()
+    # while True:
+    #     if Bot.stop_for <= 0:
+    #         is_occupied, path = cam.get_frame(save_file=True)
+    #         if is_occupied:
+    #             if last_send - time.time() >= Bot.delay:
+    #                 Bot.send_image(path)
+    #                 last_send = time.time()
+    #                 print(path)
+    #         # Периодическое обновление исходного кадра
+    #         refresh = (refresh + 1) % 100
+    #         if refresh == 0:
+    #             cam.change_parameters()
+    #     else:
+    #         now = time.time()
+    #         Bot.stop_for -= now - Bot.stop_from
+    #         Bot.stop_from = now
     refresh = 0
-    last_send = time.time()
     while True:
-        if Bot.stop_for <= 0:
-            is_occupied, path = cam.get_frame(save_file=True)
-            if is_occupied:
-                if last_send - time.time() >= Bot.delay:
-                    Bot.send_image(path)
-                    last_send = time.time()
-                    # print(path)
-            # Периодическое обновление исходного кадра
-            refresh = (refresh + 1) % 100
-            if refresh == 0:
-                cam.change_parameters()
-        else:
-            now = time.time()
-            Bot.stop_for -= now - Bot.stop_from
-            Bot.stop_from = now
+        is_occupied, path = cam.get_frame(save_file=True)
+        if is_occupied:
+            Bot.send_image(path)
+            print(path)
+        # Периодическое обновление исходного кадра
+        refresh = (refresh + 1) % 100
+        if refresh == 0:
+            cam.change_parameters()
 
 
 # Создаю и запускаю потоки
@@ -62,5 +71,5 @@ bot_thread.start()
 
 # Корректно завершаю потоки
 bot_thread.join()
-main_thread.join()
 site_thread.join()
+main_thread.join()
