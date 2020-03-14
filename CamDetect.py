@@ -49,12 +49,12 @@ class Detector:
         self.refresh()
         self.detect(save_file=save_file)
         path = self.output(save_file=save_file)
-        return self.is_occupied, path
+        yield self.is_occupied, path
 
     def get_frame_obj(self):
         self.frames = open("stream.jpg", 'wb+')
         cv2.imwrite("stream.jpg", self.frame)  # поток для сайта
-        return self.frames.read()
+        yield self.frames.read()
 
     def refresh(self):
         self.frame = self.vs.read()  # получаю кадр из потока

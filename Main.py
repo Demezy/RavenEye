@@ -48,12 +48,12 @@ def main() -> None:
 
 
 # Создаю и запускаю потоки
-main_thread = threading.Thread(target=main, name='main_thread')
+main_thread = threading.Thread(target=main, name='main_thread', daemon=True)
 site_thread = threading.Thread(target=Site.app.run,
                                kwargs={'host': '127.0.0.1', 'port': '5000',
                                        'ssl_context': ('data/cert.pem', 'data/key.pem')},
-                               name="Site")
-bot_thread = threading.Thread(target=Bot.main, name='bot_thread')
+                               name="Site", daemon=True)
+bot_thread = threading.Thread(target=Bot.main, name='bot_thread', daemon=True)
 # Запускаю потоки
 
 main_thread.start()
