@@ -1,8 +1,10 @@
 import random
-from flask import Flask, flash, Response, render_template, redirect, url_for, request
+from flask import Flask, flash, Response, render_template, redirect, url_for, request, abort
 from flask_bootstrap import Bootstrap
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
+from flask_admin import Admin, expose, BaseView
+from flask_admin.contrib.sqla import ModelView
 from flask_wtf import FlaskForm
 from werkzeug.security import generate_password_hash, check_password_hash
 from wtforms import StringField, PasswordField, BooleanField, IntegerField, validators
@@ -25,14 +27,45 @@ Camera = None
 fps = 20
 
 
+def key_gen():
+    key = ''
+
+    for i in range(16):
+        if i % 4 == 0 and i != 0:
+            key += '-'
+        key += chr(random.randint(ord('A'), ord("Z")))
+
+    return key
+
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(15), unique=True)
     email = db.Column(db.String(50))
     password = db.Column(db.String(80))
-    telegram_key = db.Column(db.String(80))
+    telegram_key = db.Column(db.String(80), default=key_gen)
     chat_id_telegram = db.Column(db.String(80))
     user_type = db.Column(db.Integer, nullable=False)
+
+
+class MyModelView(ModelView):
+
+    def is_accessible(self):
+        if current_user.user_type == 1 and current_user.is_authenticated:
+            return current_user.is_authenticated
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('login'))
+
+    excluded_list_columns = ('password',)  # Не выводятся в таблицу юзеров
+    form_rules = ['username', 'email', 'password', 'telegram_key', 'chat_id_telegram',
+                  'user_type']  # Параметры для редактирования
+    column_searchable_list = ['username', 'email', 'telegram_key', 'chat_id_telegram',
+                              'user_type']  # Столбцы работающие с поиском
+
+
+admin = Admin(app, name='Admin Panel')
+admin.add_view(MyModelView(User, db.session, 'User Data'))
 
 
 @login_manager.user_loader
@@ -78,22 +111,12 @@ def login():
 def signup():
     form = RegisterForm()
 
-    def key_gen():
-        key = ''
-
-        for i in range(16):
-            if i % 4 == 0 and i != 0:
-                key += '-'
-            key += chr(random.randint(ord('A'), ord("Z")))
-
-        return key
-
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user is None:
             hashed_password = generate_password_hash(form.password.data, method='sha256')
             new_user = User(username=form.username.data, email=form.email.data, password=hashed_password,
-                            telegram_key=key_gen(), user_type=form.user_type.data)
+                            telegram_key=key_gen, user_type=form.user_type.data)
             db.session.add(new_user)
             db.session.commit()
         else:
@@ -160,13 +183,6 @@ def chang_information():
                            user_type=current_user.uset_type)
 
 
-@app.route('/adminpanel', methods=['GET', 'POST'])
-@login_required
-def admin_panel():
-    if current_user.user_type == 1:
-        return render_template('adminpanel.html', user_table=User.query.all())
-
-
 @app.route('/logout')
 @login_required
 def logout():
@@ -189,3 +205,5 @@ def video_feed():
     return Response(gen(Camera),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
+
+app.run()

@@ -33,7 +33,7 @@
                 </li>
                 {% if user_type == 1 %}
                 <li class="nav-item mb-2">
-                  <a href="{{ url_for('admin_panel') }}">
+                  <a href="/admin">
                     <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Админ панель</button>
                   </a>
                 </li>
@@ -52,7 +52,7 @@
           <form action="/changer_information" method="POST">
             <p>Nickname *<input name="nickname" placeholder="Nickname" class="form-control" value='{{ name }}' required></p>
             <p>Email<input name="email" placeholder="Email" class="form-control" value="{{ email }}"></p>
-            <p>Сurrent password *<input type="password" name="curr_pass" class="form-control" required></p>
+            <p>Current password *<input type="password" name="curr_pass" class="form-control" required></p>
             <p>New password<input type="password" name="new_pass" class="form-control"></p>
             <p>Confirm password<input type="password" name="confirm_pass" class="form-control"></p>
             <div class="form-inline">
