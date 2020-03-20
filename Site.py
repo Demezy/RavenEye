@@ -63,6 +63,10 @@ class MyModelView(ModelView):
     column_searchable_list = ['username', 'email', 'telegram_key', 'chat_id_telegram',
                               'user_type']  # Столбцы работающие с поиском
 
+    def create_form(self):
+        hashed_password = generate_password_hash(self.form_args.password, method='sha256')
+        return hashed_password
+
 
 admin = Admin(app, name='Admin Panel')
 admin.add_view(MyModelView(User, db.session, 'User Data'))
