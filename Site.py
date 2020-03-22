@@ -3,7 +3,7 @@ from flask import Flask, flash, Response, render_template, redirect, url_for, re
 from flask_bootstrap import Bootstrap
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
-from flask_admin import Admin, expose, BaseView
+from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_wtf import FlaskForm
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -50,6 +50,10 @@ class User(UserMixin, db.Model):
 
 class MyModelView(ModelView):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.static_folder = 'static'
+
     def is_accessible(self):
         if current_user.user_type == 1 and current_user.is_authenticated:
             return current_user.is_authenticated
@@ -63,13 +67,9 @@ class MyModelView(ModelView):
     column_searchable_list = ['username', 'email', 'telegram_key', 'chat_id_telegram',
                               'user_type']  # Столбцы работающие с поиском
 
-    def create_form(self):
-        hashed_password = generate_password_hash(self.form_args.password, method='sha256')
-        return hashed_password
 
-
-admin = Admin(app, name='Admin Panel')
-admin.add_view(MyModelView(User, db.session, 'User Data'))
+admin = Admin(app, name='🅐🅓🅜🅘🅝 🅟🅐🅝🅔🅛',
+              index_view=MyModelView(User, db.session, name='User Data', url='/admin', endpoint='admin'))
 
 
 @login_manager.user_loader
