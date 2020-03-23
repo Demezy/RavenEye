@@ -69,7 +69,7 @@ class MyModelView(ModelView):
 
 
 admin = Admin(app, name='🅐🅓🅜🅘🅝 🅟🅐🅝🅔🅛',
-              index_view=MyModelView(User, db.session, name='User Data', url='/admin', endpoint='admin'))
+              index_view=MyModelView(User, db.session, name='User Data', url='/panel/admin', endpoint='admin'))
 
 
 @login_manager.user_loader
@@ -90,10 +90,15 @@ class RegisterForm(FlaskForm):
                              validators=[InputRequired(), validators.NumberRange(min=1, max=COUNT_USER_TYPE)])
 
 
-@app.route('/')
+@app.route('/home')
 @login_required
 def index():
     return render_template('index.html')
+
+
+@app.route('/')
+def base():
+    return render_template('base.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -105,7 +110,7 @@ def login():
         if user:
             if check_password_hash(user.password, form.password.data):
                 login_user(user)
-                return redirect(url_for('index'))
+                return redirect(url_for('base'))
         return render_template('login.html', form=form, error_message='Invalid username or password')
 
     return render_template('login.html', form=form)
