@@ -41,8 +41,7 @@ class Detector:
             self.fps = fps
         if max_area:
             self.max_area = max_area
-        self.refresh()
-        self.source_frame = self.gray.copy()
+        self.source_frame = cv2.GaussianBlur(cv2.cvtColor(imutils.resize(self.vs.read(), width=self.width, height=self.height), cv2.COLOR_BGR2GRAY), (21, 21), 0)
         # self.out = cv2.VideoWriter('output.avi', self.fourcc, self.fps, (self.width, self.height), True)
 
     def get_frame(self, save_file=True) -> (bool, str):
