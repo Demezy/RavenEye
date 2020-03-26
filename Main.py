@@ -18,11 +18,14 @@ ap.add_argument('--width', type=int, default=640, help='Image width')
 args = vars(ap.parse_args())  # переменная для нормальной работы с аргументами
 
 fps = args['fps']
+fps = 1
 cam = Detector(video_src=args['video_src'], path=args['path'], fps=fps, height=args['height'],
                width=args['width'])
 cam.change_parameters(min_area=args['min_area'], max_area=args['max_area'])
 Site.Camera = cam
 Site.fps = fps
+
+Bot.cam = cam
 
 
 # Функция для отправки в бота
@@ -46,7 +49,7 @@ site_thread = threading.Thread(target=Site.app.run,
                                kwargs={'host': '127.0.0.1', 'port': '5000',
                                        'ssl_context': ('data/cert.pem', 'data/key.pem')},
                                name="Site", daemon=True)
-bot_thread = threading.Thread(target=Bot.main, name='bot_thread', daemon=True)
+bot_thread = threading.Thread(target=Bot.bot.polling, name='bot_thread', daemon=True)
 # Запускаю потоки
 
 main_thread.start()

@@ -155,7 +155,7 @@ def chang_information():
             if request.form['confirm_pass'] != '':
                 if request.form['new_pass'] == request.form['confirm_pass']:
                     if check_password_hash(user_data.password, request.form['confirm_pass']) is False:
-                        user_data.password = generate_password_hash(request.form['confirm_pass'], method='sha3-256')
+                        user_data.password = generate_password_hash(request.form['confirm_pass'], method='sha-256')
                         db.session.commit()
                         cool_news = 'Данные успешно изменены'
                     else:
@@ -166,6 +166,8 @@ def chang_information():
                 error_mess = 'Введите пароль повторно'
         else:
             pass
+
+        print(request.form['email'], current_user.email)
 
         if request.form['email'] != current_user.email:
             user_data.email = request.form['email']  # Change email
@@ -189,7 +191,7 @@ def chang_information():
         error_mess = "Неверно введён пароль"
     return render_template('panel.html', name=current_user.username, email=current_user.email,
                            telegram_key=current_user.telegram_key, error_message=error_mess, cool_mess=cool_news,
-                           user_type=current_user.uset_type)
+                           user_type=current_user.user_type)
 
 
 @app.route('/logout')
@@ -213,6 +215,3 @@ def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
     return Response(gen(Camera),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
-
-
-app.run()
