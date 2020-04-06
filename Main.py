@@ -18,7 +18,7 @@ ap.add_argument('--width', type=int, default=640, help='Image width')
 args = vars(ap.parse_args())  # переменная для нормальной работы с аргументами
 
 fps = args['fps']
-fps = 1
+fps = 5
 cam = Detector(video_src=args['video_src'], path=args['path'], fps=fps, height=args['height'],
                width=args['width'])
 cam.change_parameters(min_area=args['min_area'], max_area=args['max_area'])
@@ -42,21 +42,18 @@ def main() -> None:
         if refresh == 0:
             cam.change_parameters()
 
-
 # Создаю и запускаю потоки
 main_thread = threading.Thread(target=main, name='main_thread', daemon=True)
-site_thread = threading.Thread(target=Site.app.run,
-                               kwargs={'host': '127.0.0.1', 'port': '5000',
-                                       'ssl_context': ('data/cert.pem', 'data/key.pem')},
-                               name="Site", daemon=True)
 bot_thread = threading.Thread(target=Bot.bot.polling, name='bot_thread', daemon=True)
+site_thread = threading.Thread(target=Site.app.run, kwargs={"host":"0.0.0.0", 'port': '5000', 'ssl_context': ('data/cert.pem', 'data/cert.key')}, name='Site', daemon=True)
 # Запускаю потоки
 
 main_thread.start()
-site_thread.start()
 bot_thread.start()
+site_thread.start()
 
 # Корректно завершаю потоки
 bot_thread.join()
-site_thread.join()
 main_thread.join()
+site_thread.join()
+

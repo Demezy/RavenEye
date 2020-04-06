@@ -13,6 +13,7 @@ from time import sleep
 
 from os.path import abspath
 
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'Thisissupposedtobesecret!'
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{abspath("./data/userbase.db")}'
@@ -24,8 +25,6 @@ login_manager.login_view = 'login'
 
 COUNT_USER_TYPE = 3
 Camera = None
-fps = 20
-
 
 def key_gen():
     key = ''
@@ -98,7 +97,12 @@ def index():
 
 @app.route('/')
 def base():
-    return render_template('base.html')
+    try:
+        if current_user.username:
+            user_l = 1
+    except Exception:
+        user_l = 0
+    return render_template('base.html', user_login=user_l)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -204,7 +208,6 @@ def logout():
 def gen(camera):
     """Video streaming generator function."""
     while True:
-        sleep(1 / fps)
         frame = camera.get_frame_obj()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + bytearray(frame) + b'\r\n')

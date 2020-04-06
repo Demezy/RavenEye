@@ -1,16 +1,16 @@
-from os.path import abspath
+from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, select, update, and_, or_
+from os.path import abspath, exists
 from os import makedirs
-from os.path import exists
 
-import sqlite3
-import telebot
+import telebot, requests
 
-from data.CONFIG import TG_TOKEN
+from data.CONFIG import TG_TOKEN, Link
 
+link = 'https://' + Link + ':8000'
 cam = None
-link = '127.0.0.1:5000'
 bot = telebot.TeleBot(TG_TOKEN)
-conn_path = f'/{abspath("./data/userbase.db")}'
+engine = create_engine(f'sqlite:///{abspath("./data/userbase.db")}')
+meta = MetaData()
 
 SiteButton = "Перейти на сайт 🌐"
 PathButton = "Путь 📂"
@@ -38,6 +38,18 @@ settings_keyboard.row(SizeButton)
 settings_keyboard.row(BackButton)
 
 
+user = Table(
+    'user', meta, 
+    Column('id', Integer, primary_key=True),
+    Column('username', String(15), unique=True), 
+    Column('email', String(50)),
+    Column('password', String(80)),
+    Column('telegram_key', String(80)),
+    Column('chat_id_telegram', String(80)),
+    Column('user_type', Integer, nullable=False), 
+)
+
+
 # start command
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -63,10 +75,9 @@ def do_help(message):
 
 
 def check_id_and_user_type(chat_id):
-    conn = sqlite3.connect(conn_path)
-    cur = conn.cursor()
-    query = f"SELECT username, user_type FROM user WHERE chat_id_telegram='{chat_id}'"
-    name_and_type = cur.execute(query).fetchone()
+    conn = engine.connect()
+    stmt = select([user.c.username, user.c.user_type]).where(user.c.chat_id_telegram==f'{chat_id}')
+    name_and_type = conn.execute(stmt).fetchone()
     conn.close()
     return name_and_type
 
@@ -101,11 +112,9 @@ def send_text(message):
         elif message.text == LogoutButton:
             bot.send_message(message.chat.id, "Вы успешно вышли из системы",
                              reply_markup=telebot.types.ReplyKeyboardRemove())
-            conn = sqlite3.connect(conn_path)
-            cur = conn.cursor()
-            sql = f"UPDATE user SET chat_id_telegram = Null WHERE chat_id_telegram = '{message.chat.id}'"
-            cur.execute(sql)
-            conn.commit()
+            conn = engine.connect()
+            stmt = update(user).where(user.c.chat_id_telegram==f'{message.chat.id}').values(chat_id_telegram=None)
+            conn.execute(stmt)
             conn.close()
         elif message.text == SettingsButton and is_exists[1] == 1:
             bot.send_message(message.chat.id, 'Клавиатура откыта!', reply_markup=settings_keyboard)
@@ -167,10 +176,9 @@ def change_max_area(message):
 
 
 def send_image(path):
-    conn = sqlite3.connect(conn_path)
-    cur = conn.cursor()
-    query = f"SELECT chat_id_telegram FROM user"
-    all_users_id = cur.execute(query).fetchall()
+    conn = engine.connect()
+    stmt = select([user.c.chat_id_telegram])
+    all_users_id = conn.execute(stmt).fetchall()
     conn.close()
     for user_id in all_users_id:
         for ID in user_id:
@@ -182,15 +190,14 @@ def send_image(path):
                 print(e)
 
 
-def registration(message):  # получаем фамилию
+def registration(message):  # авторизация в системе
     user_data = message.text
     try:
         user_name = user_data.split()[0]
         user_key = user_data.split()[1]
-        conn = sqlite3.connect(conn_path)
-        cur = conn.cursor()
-        query = f"SELECT user_type FROM user WHERE username='{user_name}' AND telegram_key='{user_key}'"
-        user_type = cur.execute(query).fetchone()
+        conn = engine.connect()
+        stmt = select([user.c.user_type]).where(and_(user.c.username==f'{user_name}', user.c.telegram_key==f'{user_key}'))
+        user_type = conn.execute(stmt).fetchone()
         user_is_exist = bool(user_type)
         conn.close()
         if user_is_exist:
@@ -211,17 +218,9 @@ def registration(message):  # получаем фамилию
 
 
 def updater_id(chat_id, login_data, code_data):
-    conn = sqlite3.connect(conn_path)
-    cur = conn.cursor()
+    conn = engine.connect()
     sql = f"UPDATE user SET chat_id_telegram = '{chat_id}' WHERE username = '{login_data}' " \
           f"AND telegram_key = '{code_data}'"
-    cur.execute(sql)
-    conn.commit()
+    stmt = update(user).where(and_(user.c.username==f'{login_data}', user.c.telegram_key==f'{code_data}')).values(chat_id_telegram = f'{chat_id}')
+    conn.execute(stmt)
     conn.close()
-
-
-if __name__ == '__main__':
-    from CamDetect import Detector
-
-    cam = Detector()
-    bot.polling()

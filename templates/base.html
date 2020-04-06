@@ -6,8 +6,8 @@
     <meta name="keywords" content="">
     <meta name="description" content="">
     <title>Informatics Project</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='image/icon.ico') }}">
     <link rel="stylesheet" href="{{url_for('.static', filename='style.css')}}">
-    <link rel="icon" href="img/icon.png" sizes="16x16" type="image/png">
     <link rel="stylesheet" href="../static/bootstrap-4.4.1-dist/css/bootstrap.min.css">
   </head>
   <body style="background-color:gray;">
@@ -19,11 +19,12 @@
             <span class="navbar-toggler-icon text-white">&#9776;</span>
           </button>
             <div class="collapse navbar-collapse mt-2" id="navbarResponsive">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item active mb-2">
+              {% if user_login == 1 %}
+              <ul class="navbar-nav ml-auto">
+                  <li class="nav-item active mb-2">
                       <a href="{{ url_for('index') }}" class="nav-link text-white">Трансляция</a>
-                    </li>
-                </ul>
+                  </li>
+              </ul>
               <ul class="navbar-nav ml-auto">
                 <li class="nav-item mb-2">
                   <a href="{{ url_for('logout') }}">
@@ -36,31 +37,26 @@
                   </a>
                 </li>
               </ul>
+              {% else %}
+              <ul class="navbar-nav m-auto">
+                  <li class="nav-item active mb-2">
+                      <a href="{{ url_for('index') }}" class="nav-link text-white">Трансляция</a>
+                  </li>
+              </ul>
+              {% endif %}
           </div>
         </div>
       </nav>
     </header>
-    <main class="p-5" style="margin-bottom: 8%;">
+    <main style="padding: 15%;">
       <div class="bg-dark rounded-lg" style="">
         <div class="p-3 text-white" style="">
-          <h4 class="text-center mb-4 "> Текст-лягушка </h4>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Sem fringilla ut morbi tincidunt augue interdum velit. Purus faucibus ornare suspendisse sed nisi lacus sed viverra. At volutpat diam ut venenatis tellus in metus vulputate. Imperdiet nulla malesuada pellentesque elit eget gravida cum sociis. Egestas integer eget aliquet nibh. Sodales ut etiam sit amet nisl purus in mollis. Imperdiet proin fermentum leo vel orci porta. Sodales ut etiam sit amet nisl purus in. Mus mauris vitae ultricies leo integer malesuada nunc vel. Non diam phasellus vestibulum lorem sed risus ultricies tristique. Mauris sit amet massa vitae tortor condimentum lacinia quis vel. Posuere morbi leo urna molestie.
-
-            A pellentesque sit amet porttitor eget. Mi sit amet mauris commodo quis. Lorem dolor sed viverra ipsum nunc aliquet bibendum enim facilisis. Quis enim lobortis scelerisque fermentum dui faucibus in ornare quam. Mauris rhoncus aenean vel elit. Vel fringilla est ullamcorper eget nulla facilisi. Vel eros donec ac odio tempor orci dapibus ultrices. Risus nec feugiat in fermentum posuere. Morbi tincidunt ornare massa eget. Hendrerit gravida rutrum quisque non tellus orci ac auctor augue. Sagittis eu volutpat odio facilisis mauris sit amet massa. Urna molestie at elementum eu facilisis sed odio morbi.
-
-            Ullamcorper malesuada proin libero nunc consequat interdum varius sit. Tristique magna sit amet purus gravida quis blandit turpis. Metus aliquam eleifend mi in nulla posuere sollicitudin. Fermentum dui faucibus in ornare quam viverra. Sem integer vitae justo eget. Ultricies integer quis auctor elit sed vulputate. Non diam phasellus vestibulum lorem sed risus. Enim sed faucibus turpis in eu mi bibendum neque egestas. Rutrum quisque non tellus orci ac auctor augue. Magna fringilla urna porttitor rhoncus dolor. Interdum posuere lorem ipsum dolor sit amet consectetur adipiscing elit. Commodo quis imperdiet massa tincidunt nunc pulvinar sapien et ligula. Elit ullamcorper dignissim cras tincidunt lobortis.
-
-            Eget nullam non nisi est sit amet. Iaculis nunc sed augue lacus viverra vitae congue eu consequat. Hendrerit gravida rutrum quisque non tellus orci ac auctor augue. Tortor vitae purus faucibus ornare suspendisse sed. Duis at consectetur lorem donec massa sapien faucibus et molestie. Facilisi cras fermentum odio eu feugiat pretium nibh ipsum. Et netus et malesuada fames ac turpis egestas. Velit dignissim sodales ut eu. Mollis nunc sed id semper risus in hendrerit gravida rutrum. Turpis massa sed elementum tempus egestas sed sed. Sed cras ornare arcu dui. At risus viverra adipiscing at in. At augue eget arcu dictum varius. Convallis posuere morbi leo urna. Purus in massa tempor nec feugiat nisl. Quis commodo odio aenean sed adipiscing. Malesuada nunc vel risus commodo viverra maecenas accumsan. Proin fermentum leo vel orci porta non pulvinar neque laoreet. Sed risus ultricies tristique nulla aliquet enim tortor at. Facilisis leo vel fringilla est.
-
-            Rhoncus urna neque viverra justo nec ultrices dui sapien eget. Quis enim lobortis scelerisque fermentum dui faucibus in ornare quam. Mauris rhoncus aenean vel elit. Vel fringilla est ullamcorper eget nulla facilisi. Vel eros donec ac odio tempor orci dapibus ultrices. Risus nec feugiat in fermentum posuere. Morbi tincidunt ornare massa eget. Hendrerit gravida rutrum quisque non tellus orci ac auctor augue. Sagittis eu volutpat odio facilisis mauris sit amet massa. Urna molestie at elementum eu facilisis sed odio morbi.
-
-            Ullamcorper malesuada proin libero nunc consequat interdum varius sit. Tristique magna sit amet purus gravida quis blandit turpis. Quis enim lobortis scelerisque fermentum dui faucibus in ornare quam. Mauris rhoncus aenean vel elit. Vel fringilla est ullamcorper eget nulla facilisi. Vel eros donec ac odio tempor orci dapibus ultrices. Risus nec feugiat in fermentum posuere. Morbi tincidunt ornare massa eget. Hendrerit gravida rutrum quisque non tellus orci ac auctor augue. Sagittis eu volutpat odio facilisis mauris sit amet massa. Urna molestie at elementum eu facilisis sed odio morbi.
-
-            Ullamcorper malesuada proin libero nunc consequat interdum varius sit. Tristique magna sit amet purus gravida quis blandit turpis. Imperdiet sed euismod nisi porta lorem mollis aliquam ut porttitor. Vel eros donec ac odio tempor orci. Mauris a diam maecenas sed enim ut sem viverra aliquet. Et pharetra pharetra massa massa ultricies mi. Cursus vitae congue mauris rhoncus aenean vel elit scelerisque mauris. Pellentesque eu tincidunt tortor aliquam. Mauris commodo quis imperdiet massa tincidunt nunc pulvinar sapien. A iaculis at erat pellentesque adipiscing commodo elit. Amet volutpat consequat mauris nunc congue. Sed enim ut sem viverra aliquet. Dictum varius duis at consectetur. Id aliquet lectus proin nibh nisl condimentum. Senectus et netus et malesuada fames ac. Proin sagittis nisl rhoncus mattis rhoncus urna neque viverra. Purus ut faucibus pulvinar elementum. Fermentum posuere urna nec tincidunt.
+          <h4 class="text-center mb-4 "> О проекте </h4>
+            В современном мире люди мало пекутся о своей безопасности. Кто-то просто ей пренебрегает, рассчитывая на удачу, кто-то считает закрытую дверь – гарантией сохранности, но есть те, кто не может позволить себе охранную систему. Как раз для последних и создан наш проект. SecureCam – программа, воплощающая систему видеонаблюдения с трансляцией на сайт и уведомлением пользователя о проникновении через telegram бота. Для работы необходим компьютер, например, одноплатный микрокомпьютер rasberry pi 3 b+, и вебкамера. Себестоимость аппаратной части 2 500₽, но можно и дешевле, зависит от региона, когда аналогичные решения стоят от 8 000₽. Есть возможность развернуть систему на ноутбуке, тем самым, не покупая дополнительные материалы.
         </div>
       </div>
     </main>
-    <footer class="container-fluid bg-dark p-3 text-white" style="position: absolute; bottom: 0;">
+    <footer class="container-fluid bg-dark p-3 text-white">
       <div class="container">
         <div class="row padding text-center">
           <div class="col-12">
