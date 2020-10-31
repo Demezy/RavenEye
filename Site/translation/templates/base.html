@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <title>Informatics Project</title>
+    <link rel="shortcut icon" href="{% static 'image/icon.ico' %}">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-4.4.1-dist/css/bootstrap.min.css' %}">
+  </head>
+  <body style="background-color:gray;">
+    <header class="">
+      <nav class="navbar navbar-expand-md bg-dark sticky-top">
+        <div class="container-fluid">
+          <a href="{% url 'index' %}" class="navbar-brad"><img id="im" src="{% static 'image/icon.png' %}"></a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive">
+            <span class="navbar-toggler-icon text-white">&#9776;</span>
+          </button>
+            <div class="collapse navbar-collapse mt-2" id="navbarResponsive">
+              {% if auth == 1 %}
+              <ul class="navbar-nav ml-auto">
+                  <li class="nav-item active mb-2">
+                      <a href="{% url 'index' %}" class="nav-link text-white">Трансляция</a>
+                  </li>
+              </ul>
+              <ul class="navbar-nav ml-auto">
+                <li class="nav-item mb-2">
+                  <a href="{% url 'logout' %}">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Выйти</button>
+                  </a>
+                </li>
+                <li class="nav-item mb-2">
+                  <a href="{% url 'panel' %}">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><i class="fas fa-user"></i></button>
+                  </a>
+                </li>
+              </ul>
+              {% else %}
+              <ul class="navbar-nav m-auto">
+                  <li class="nav-item active mb-2">
+                      <a href="{% url 'index' %}" class="nav-link text-white">Трансляция</a>
+                  </li>
+              </ul>
+              {% endif %}
+          </div>
+        </div>
+      </nav>
+    </header>
+    <main style="padding: 16%;">
+      <div class="bg-dark rounded-lg" style="">
+        <div class="p-3 text-white" style="">
+          <h4 class="text-center mb-4 "> О проекте </h4>
+            В современном мире люди мало пекутся о своей безопасности. Кто-то просто ей пренебрегает, рассчитывая на удачу, кто-то считает закрытую дверь – гарантией сохранности, но есть те, кто не может позволить себе охранную систему. Как раз для последних и создан наш проект. SecureCam – программа, воплощающая систему видеонаблюдения с трансляцией на сайт и уведомлением пользователя о проникновении через telegram бота. Для работы необходим компьютер, например, одноплатный микрокомпьютер rasberry pi 3 b+, и вебкамера. Себестоимость аппаратной части 2 500₽, но можно и дешевле, зависит от региона, когда аналогичные решения стоят от 8 000₽. Есть возможность развернуть систему на ноутбуке, тем самым, не покупая дополнительные материалы.
+        </div>
+      </div>
+    </main>
+    <footer class="container-fluid bg-dark p-3 text-white">
+      <div class="container">
+        <div class="row padding text-center">
+          <div class="col-12">
+            <p>&copy; Project by Lespir and Demezy</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script src="../static/javascript.js" type="text/javascript"></script>
+    <script src="../static/requirements/jquery.min.js"></script>
+    <script src="../static/bootstrap-4.4.1-dist/js/bootstrap.min.js"></script>
+    <script src="../static/requirements/all.js" type="text/javascript"></script>
+  </body>
+</html>
